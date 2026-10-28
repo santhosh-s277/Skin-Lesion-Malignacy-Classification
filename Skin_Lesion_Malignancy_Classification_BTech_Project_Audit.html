@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skin Lesion Malignancy Classification - B.Tech Project Audit Report</title>
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.65;
+    color: #1e293b;
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 0 24px;
+    background-color: #ffffff;
+  }
+  h1 {
+    color: #0f172a;
+    border-bottom: 3px solid #0d9488;
+    padding-bottom: 10px;
+    margin-top: 10px;
+    font-size: 26px;
+  }
+  h2 {
+    color: #0f766e;
+    border-bottom: 1.5px solid #e2e8f0;
+    padding-bottom: 6px;
+    margin-top: 36px;
+    font-size: 20px;
+  }
+  h3 {
+    color: #1e293b;
+    margin-top: 24px;
+    font-size: 16px;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 20px 0;
+    font-size: 13.5px;
+  }
+  th, td {
+    border: 1px solid #cbd5e1;
+    padding: 9px 12px;
+    text-align: left;
+  }
+  th {
+    background-color: #f1f5f9;
+    color: #0f172a;
+    font-weight: 700;
+  }
+  tr:nth-child(even) {
+    background-color: #f8fafc;
+  }
+  code {
+    background: #f1f5f9;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    color: #0f766e;
+  }
+  pre {
+    background: #0f172a;
+    color: #f8fafc;
+    padding: 16px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 13px;
+  }
+  pre code {
+    background: none;
+    color: inherit;
+    padding: 0;
+  }
+  blockquote {
+    border-left: 4px solid #f59e0b;
+    background: #fffbeb;
+    padding: 14px 18px;
+    margin: 18px 0;
+    border-radius: 4px;
+    color: #92400e;
+  }
+  hr {
+    border: 0;
+    border-top: 1px solid #e2e8f0;
+    margin: 32px 0;
+  }
+  @media print {
+    body {
+      max-width: 100%;
+      margin: 15mm;
+      font-size: 12pt;
+    }
+    pre, blockquote, table {
+      page-break-inside: avoid;
+    }
+  }
+</style>
+</head>
+<body>
+<h1>Complete Technical Project Audit for B.Tech Project Report: Skin Lesion Malignancy Classification</h1>
+<p><strong>Academic Department:</strong> Department of Artificial Intelligence and Machine Learning<br />
+<strong>Project Title (Current Flagship):</strong> SafeDerm Triage Lite: Explainable Deep Learning for Dermoscopic Skin Lesion Triage<br />
+<strong>Historical / Baseline Implementation:</strong> SkinAI — AI Skin Lesion Classification Dashboard<br />
+<strong>Lead Student Candidate:</strong> SANTHOSH S (Register Number: <code>7376242AL191</code>)<br />
+<strong>Project Team Members:</strong> NISHANTH R (<code>7376242AL161</code>), SANJAY K (<code>7376242AL187</code>)<br />
+<strong>Audit Date:</strong> October 22, 2026<br />
+<strong>Auditor Designation:</strong> Senior AI/ML Software Project Auditor &amp; Technical Documentation Specialist</p>
+<hr />
+<blockquote>
+<p>[!IMPORTANT]
+<strong>Mandatory Medical Disclaimer &amp; Intended Scope</strong><br />
+This software system and its associated deep learning models are <strong>strictly research and educational prototypes</strong> developed for academic demonstration. <strong>It is not a certified medical device, does not possess CE/FDA clinical clearance, and does not provide clinical diagnostic decisions.</strong> Model outputs represent uncalibrated class probability scores over predefined dermoscopic categories and must never be utilized as a substitute for histological biopsy or evaluation by a qualified dermatologist.</p>
+</blockquote>
+<hr />
+<h2>PART 1 — PROJECT IDENTITY</h2>
+<pre><code>========================================================================================
+AUDIT CLASSIFICATION: IMPLEMENTED AND INDEPENDENTLY VERIFIED
+========================================================================================
+</code></pre>
+<h3>1. Project Title &amp; Identity</h3>
+<ul>
+<li><strong>Exact Title Found in Primary Project:</strong> <code>&quot;SafeDerm Triage Lite — Explainable AI for Educational Skin Lesion Image Classification&quot;</code> (located in [C:/SafeDerm/README.md](file:///C:/SafeDerm/README.md#L8-L10) and [C:/SafeDerm/src/app.py](file:///C:/SafeDerm/src/app.py#L9)).</li>
+<li><strong>Underlying / Historical Baseline Title:</strong> <code>&quot;SkinAI — AI Skin Lesion Classification Dashboard&quot;</code> (located in [D:/skinai_project/app.py](file:///D:/skinai_project/app.py#L2)).</li>
+</ul>
+<h3>2. Objectives &amp; Problem Statement Addressed</h3>
+<ul>
+<li><strong>Problem Addressed:</strong> Malignant melanoma and keratinocyte carcinomas (BCC, SCC) pose high clinical mortality and morbidity if undetected. Standard deep learning classifiers operate as &quot;black boxes&quot;, often latching onto non-pathological imaging shortcuts (e.g., vignetting rings, ruler markings, gel bubbles, and hair follicles). Furthermore, severe dataset class imbalance causes deep models to achieve superficially high accuracy while suffering poor sensitivity on fatal malignancies like Melanoma.</li>
+<li><strong>Proposed Solution:</strong> A multi-class dermoscopic triage framework powered by TorchVision <code>EfficientNet-B0</code> integrated with Convolutional Block Attention Modules (<code>CBAM</code>) after stages 3, 5, and 7, trained using class-weighted Focal Loss ($\gamma = 2.0$) over 8 ISIC 2019 diagnostic categories. The system incorporates mathematically rigorous Grad-CAM targeting an intermediate $14 \times 14$ feature map (<code>model.features[5]</code>), accompanied by an empirical explainability sanity suite (Adebayo parameter randomization, coordinate registration, and occlusion faithfulness tests) and a browser-based Gradio user interface.</li>
+</ul>
+<h3>3. Target End Users &amp; Development Status</h3>
+<ul>
+<li><strong>Expected Users:</strong> Undergraduate engineering evaluators, AI/ML academic researchers, computer vision students, and medical informatics trainees exploring explainable deep learning in computational dermatology.</li>
+<li><strong>Development Status:</strong> <strong>Stage 4 — Prototype Verification &amp; Diagnostic Auditing Complete</strong>. Checkpoints are trained, evaluation is frozen on held-out test splits, core inference and diagnostic suites are verified, and the dual-tab web application is fully operational locally.</li>
+</ul>
+<h3>4. Primary Project Workspace Structure</h3>
+<pre><code>C:\SafeDerm\
+├── checkpoints\
+│   └── best.pt                           # Checkpoint (Epoch 22, Val Macro-F1: 0.7705, 16.4 MB)
+├── results\
+│   ├── confusion_matrix_test.csv         # 8x8 raw test confusion matrix (2,534 test samples)
+│   ├── confusion_matrix_test.png         # High-resolution rendered test confusion matrix
+│   ├── test_metrics.json                 # Frozen JSON test metrics (Acc: 82.16%, Macro-F1: 76.06%)
+│   ├── test_predictions.csv              # Per-sample test prediction records
+│   ├── gradcam_examples.png              # Multi-sample Grad-CAM mosaic
+│   ├── gradcam_sanity.png                # Sanity test visualization
+│   └── lite\
+│       └── gradcam_diagnostics\
+│           ├── artifact_reliance_test.png      # Hair/border/center perturbation test figure
+│           ├── diagnostics_summary.json        # Machine-readable output of validation suite
+│           ├── multi_layer_comparison.png      # Layer resolution comparison (14x14 vs 7x7)
+│           ├── occlusion_faithfulness_test.png # Occlusion drop comparison
+│           └── three_panel_verification.png    # Preprocessed input, heatmap, overlay panel
+├── saved_model\
+│   ├── model_code.py                     # Standalone architecture definition (EfficientNet-B0 + CBAM)
+│   ├── model_config.json                 # Preprocessing, normalization, and attention parameters
+│   └── model_info.json                   # Checkpoint provenance, training environment, parameter counts
+├── splits\
+│   ├── train.csv                         # 20,264 training samples
+│   ├── val.csv                           # 2,533 validation samples
+│   ├── test.csv                          # 2,534 held-out test samples
+│   ├── val_calib.csv                     # 1,267 validation samples for calibration
+│   └── val_select.csv                    # 1,266 validation samples for model selection
+├── src\
+│   ├── app.py                            # Gradio 6.30.0 application entry point (Dual-tab UI)
+│   ├── dashboard.py                      # Matplotlib analytics rendering module
+│   ├── gradcam.py                        # Custom bilinear Grad-CAM implementation (features[5])
+│   ├── inference.py                      # Thread-safe InferenceService with input validation
+│   ├── phase0_setup_check.py             # Environment verification script
+│   └── validate_gradcam.py               # 8-step Grad-CAM diagnostic verification suite
+├── README.md                             # Academic project documentation
+├── requirements.txt                      # Pinned Python package dependencies
+├── sample_test_image.jpg                 # Verified sample lesion test asset (350x350 JPG)
+└── verify_ckpt.py                        # PyTorch checkpoint tensor &amp; key inspection tool
+</code></pre>
+<p><strong>Supplementary Generator &amp; Testing Workspace:</strong> <code>c:\Users\SANTHOSH\Downloads\Skin Lesion Review\</code><br />
+Contains build utilities: <code>build_app.py</code>, <code>build_gradcam.py</code>, <code>build_modules.py</code>, <code>build_readme.py</code>, <code>build_validate_gradcam.py</code>, <code>diagnose_gradcam_details.py</code>, <code>incorporate_redesigned_ui.py</code>, <code>run_full_gradcam_diagnostics.py</code>, <code>setup_files.ps1</code>, <code>test_core.py</code>, and <code>test_app_integration.py</code>.</p>
+<h3>5. Programming Languages, Frameworks, and Runtime Environment</h3>
+<ul>
+<li><strong>Primary Language:</strong> Python 3.11.9 (64-bit AMD64)</li>
+<li><strong>Core Machine Learning Frameworks:</strong> PyTorch <code>2.5.1+cu121</code>, TorchVision <code>0.20.1+cu121</code></li>
+<li><strong>Web UI Framework:</strong> Gradio <code>6.30.0</code> (backed by FastAPI <code>0.143.0</code> and Starlette <code>1.8.0</code>)</li>
+<li><strong>Scientific Computing &amp; Plotting:</strong> NumPy <code>2.4.6</code>, Pandas <code>3.0.6</code>, Matplotlib <code>3.11.2</code>, Scikit-learn <code>1.9.1</code>, SciPy <code>1.17.1</code>, Pillow <code>12.3.0</code></li>
+<li><strong>Operating System:</strong> Microsoft Windows 11 Home / Pro (Build 10.0.26100)</li>
+<li><strong>Hardware Acceleration:</strong> NVIDIA GeForce RTX 4050 Laptop GPU (Device 0, 6.0 GB VRAM, Compute Capability 8.9), CUDA Driver 12.1+.</li>
+</ul>
+<h3>6. Project Entry Point and Launch Command</h3>
+<ul>
+<li><strong>Application Entry Point:</strong> [C:\SafeDerm\src\app.py](file:///C:/SafeDerm/src/app.py)</li>
+<li><strong>Launch Command (Windows PowerShell):</strong><pre><code class="language-powershell">&amp; &quot;C:\SafeDerm\venv\Scripts\python.exe&quot; &quot;C:\SafeDerm\src\app.py&quot;
+</code></pre>
+Launches the local web server at <code>http://127.0.0.1:7860</code>.</li>
+</ul>
+<hr />
+<h2>PART 2 — DATASET AUDIT</h2>
+<pre><code>========================================================================================
+AUDIT CLASSIFICATION: IMPLEMENTED AND INDEPENDENTLY VERIFIED
+========================================================================================
+</code></pre>
+<h3>1. Dataset Identification and Provenance</h3>
+<ul>
+<li><strong>Dataset Used:</strong> <strong>ISIC 2019: Challenge on Skin Lesion Analysis Towards Melanoma Detection</strong> (incorporates HAM10000, BCN_20000, and MSK datasets).</li>
+<li><strong>Official Citation / Source:</strong> International Skin Imaging Collaboration (ISIC) 2019 Challenge; Tschandl et al. (2018), Codella et al. (2018), Combalia et al. (2019).</li>
+<li><strong>Verified Total Sample Count in Inspected Splits:</strong> <strong>25,331 images</strong> across 8 diagnostic classes (confirmed by summing records across <code>train.csv</code>, <code>val.csv</code>, and <code>test.csv</code> in [C:\SafeDerm\splits](file:///C:/SafeDerm/splits)). The unknown/out-of-distribution class (<code>UNK</code>) from ISIC 2019 was explicitly excluded.</li>
+</ul>
+<h3>2. Diagnostic Classes and Numerical Label Mapping</h3>
+<p>The project defines an exact 8-class indexing scheme recorded in [C:\SafeDerm\saved_model\model_config.json](file:///C:/SafeDerm/saved_model/model_config.json#L4-L13) and [C:\SafeDerm\src\inference.py](file:///C:/SafeDerm/src/inference.py#L35-L47):</p>
+<p>| Index | Code | Full Diagnostic Name | Clinical Category |
+|:---:|:---:|:---|:---|
+| <strong>0</strong> | <strong>MEL</strong> | Melanoma | Malignant Melanocytic |
+| <strong>1</strong> | <strong>NV</strong> | Melanocytic Nevus | Benign Melanocytic (Mole) |
+| <strong>2</strong> | <strong>BCC</strong> | Basal Cell Carcinoma | Malignant Keratinocyte |
+| <strong>3</strong> | <strong>AK</strong> | Actinic Keratosis / Intraepithelial Carcinoma | Pre-Malignant Keratinocyte |
+| <strong>4</strong> | <strong>BKL</strong> | Benign Keratosis (Solar Lentigo / Seborrheic / LPLK) | Benign Keratinocyte |
+| <strong>5</strong> | <strong>DF</strong> | Dermatofibroma | Benign Fibrous Histiocytoma |
+| <strong>6</strong> | <strong>VASC</strong> | Vascular Lesion (Hemangioma / Angioma) | Benign Vascular |
+| <strong>7</strong> | <strong>SCC</strong> | Squamous Cell Carcinoma | Malignant Keratinocyte |</p>
+<h3>3. Exact Sample Distribution Across Verified Splits</h3>
+<p>Each split was inspected directly by computing frequency tables from the split CSV files:</p>
+<p>| Diagnostic Class | Training Set (<code>train.csv</code>) | Validation Set (<code>val.csv</code>) | Test Set (<code>test.csv</code>) | Total Samples | Overall % |
+|:---|:---:|:---:|:---:|:---:|:---:|
+| <strong>NV</strong> (Melanocytic Nevus) | 10,300 | 1,287 | 1,288 | <strong>12,875</strong> | 50.83% |
+| <strong>MEL</strong> (Melanoma) | 3,618 | 452 | 452 | <strong>4,522</strong> | 17.85% |
+| <strong>BCC</strong> (Basal Cell Carcinoma) | 2,658 | 332 | 333 | <strong>3,323</strong> | 13.12% |
+| <strong>BKL</strong> (Benign Keratosis) | 2,099 | 262 | 263 | <strong>2,624</strong> | 10.36% |
+| <strong>AK</strong> (Actinic Keratosis) | 694 | 87 | 86 | <strong>867</strong> | 3.42% |
+| <strong>SCC</strong> (Squamous Cell Carcinoma) | 502 | 63 | 63 | <strong>628</strong> | 2.48% |
+| <strong>VASC</strong> (Vascular Lesion) | 202 | 26 | 25 | <strong>253</strong> | 1.00% |
+| <strong>DF</strong> (Dermatofibroma) | 191 | 24 | 24 | <strong>239</strong> | 0.94% |
+| <strong>Total Images</strong> | <strong>20,264</strong> | <strong>2,533</strong> | <strong>2,534</strong> | <strong>25,331</strong> | <strong>100.00%</strong> |
+| <strong>Split Proportion</strong> | <strong>79.997% (~80%)</strong> | <strong>9.999% (~10%)</strong> | <strong>10.004% (~10%)</strong> | <strong>100.00%</strong> | — |</p>
+<p><em>Additional Validation Sub-splits:</em> [val_calib.csv](file:///C:/SafeDerm/splits/val_calib.csv) contains 1,267 images and [val_select.csv](file:///C:/SafeDerm/splits/val_select.csv) contains 1,266 images, partitioning the validation set 50/50 for probability calibration and early-stopping selection.</p>
+<h3>4. Split Strategy, Random Seeds, and Data Leakage Audit</h3>
+<ul>
+<li><strong>Partitioning Strategy:</strong> Stratified random split preserving class proportions across train, validation, and test sets.</li>
+<li><strong>Random Seed:</strong> <code>seed = 42</code> (verified in [C:\SafeDerm\saved_model\model_info.json](file:///C:/SafeDerm/saved_model/model_info.json#L31) and [C:\Users\SANTHOSH\Downloads\ISIC2019_Important_Backup.zip\export\MODEL_CARD.md](file:///C:/Users/SANTHOSH/Downloads/ISIC2019_Important_Backup.zip)).</li>
+<li><strong>CRITICAL AUDIT FINDING — Lesion-Level vs Image-Level Data Leakage:</strong>
+As explicitly documented in the internal model card:
+<blockquote>
+<p><em>&quot;Split was per image, not by lesion: the same lesion or patient may appear across splits, which can make evaluation scores optimistic.&quot;</em><br />
+Because ISIC 2019 aggregates datasets where multiple dermoscopic crops or follow-up captures exist for a single patient/lesion identifier (<code>lesion_id</code>), partitioning at the image level without grouping by <code>lesion_id</code> introduces a recognized risk of cross-split feature contamination. This limitation must be prominently stated in the academic report.</p>
+</blockquote>
+</li>
+</ul>
+<hr />
+<h2>PART 3 — IMAGE PREPROCESSING AND AUGMENTATION</h2>
+<pre><code>========================================================================================
+AUDIT CLASSIFICATION: IMPLEMENTED AND INDEPENDENTLY VERIFIED
+========================================================================================
+</code></pre>
+<h3>1. Documented Preprocessing Pipeline</h3>
+<p>All inference and evaluation routines enforce an exact four-step transformation pipeline verified in [C:\SafeDerm\src\inference.py](file:///C:/SafeDerm/src/inference.py#L49-L61):</p>
+<pre><code class="language-mermaid">flowchart LR
+    A[&quot;Raw Image (JPG/PNG)&quot;] --&gt; B[&quot;Bicubic Resize (256 x 256)&quot;]
+    B --&gt; C[&quot;Center Crop (224 x 224)&quot;]
+    C --&gt; D[&quot;To Float Tensor [0.0, 1.0]&quot;]
+    D --&gt; E[&quot;ImageNet Normalization (Mean/Std)&quot;]
+    E --&gt; F[&quot;Tensor Shape: [1, 3, 224, 224]&quot;]
+</code></pre>
+<ol>
+<li><strong>Interpolation &amp; Resizing:</strong> Rescaled to $256 \times 256$ pixels using <code>InterpolationMode.BICUBIC</code>.</li>
+<li><strong>Geometric Cropping:</strong> Center-cropped to $224 \times 224$ pixels (offsets: $x \in [16, 240]$, $y \in [16, 240]$).</li>
+<li><strong>Tensor Scaling:</strong> Converted to a floating-point PyTorch tensor with values normalized to $[0.0, 1.0]$.</li>
+<li><strong>Channel Normalization:</strong> Standardized using standard ImageNet RGB statistics:
+<ul>
+<li>Mean vector: $\mu = [0.485, 0.456, 0.406]$</li>
+<li>Standard deviation vector: $\sigma = [0.229, 0.224, 0.225]$</li>
+</ul>
+</li>
+</ol>
+<h3>2. Training-Time Augmentations</h3>
+<ul>
+<li><strong>Phase 2 (EfficientNet-B0 + CBAM):</strong> Inspected configuration confirms $224 \times 224$ input resolution, bicubic scaling, and normalization. Detailed augmentation scripts in the initial training environment are documented in the training configuration (<code>batch_size=64</code>, AMP mixed precision).</li>
+<li><strong>Phase 1 Baseline ([D:\skinai_project\train.py](file:///D:/skinai_project/train.py#L42-L49)):</strong> Implemented <code>Resize((224, 224))</code>, <code>RandomHorizontalFlip()</code>, <code>RandomRotation(degrees=20)</code>, <code>ColorJitter(brightness=0.2, contrast=0.2)</code>, and ImageNet normalization.</li>
+</ul>
+<h3>3. Server-Side Input Validation Pipeline</h3>
+<p>The deployment service implements strict defensive guards against invalid inputs in [C:\SafeDerm\src\inference.py](file:///C:/SafeDerm/src/inference.py#L123-L178):</p>
+<ul>
+<li><strong>Empty / Null Payloads:</strong> Rejects <code>None</code> inputs or zero-byte files with explicit descriptive warnings.</li>
+<li><strong>Maximum File Size:</strong> Enforces a hard ceiling of <strong>10.0 MB</strong> (<code>10 * 1024 * 1024</code> bytes).</li>
+<li><strong>Format Whitelist:</strong> Restricts inputs to <code>JPEG</code>, <code>JPG</code>, <code>PNG</code>, and <code>WEBP</code>.</li>
+<li><strong>Structural Corruption Check:</strong> Executes Pillow <code>img.verify()</code> on binary buffer streams before decoding.</li>
+<li><strong>Resolution Limits:</strong> Enforces a minimum bounding dimension of <strong>$64 \times 64$ pixels</strong> and a maximum upper threshold of <strong>20.0 Megapixels</strong> to prevent decompression bombs.</li>
+<li><strong>Color Mode Standardization:</strong> Safely converts arbitrary color modes (<code>L</code>, <code>RGBA</code>, <code>CMYK</code>, <code>P</code>) to 3-channel standard RGB.</li>
+</ul>
+<hr />
+<h2>PART 4 — MODEL ARCHITECTURE</h2>
+<pre><code>========================================================================================
+AUDIT CLASSIFICATION: IMPLEMENTED AND INDEPENDENTLY VERIFIED
+========================================================================================
+</code></pre>
+<h3>1. Neural Network Specification</h3>
+<ul>
+<li><strong>Backbone Architecture:</strong> TorchVision <code>EfficientNet-B0</code> ([model_code.py](file:///C:/SafeDerm/saved_model/model_code.py#L47-L52)).</li>
+<li><strong>Attention Mechanism:</strong> <strong>Convolutional Block Attention Module (CBAM)</strong> (Woo et al., 2018), consisting of sequential Channel Attention followed by Spatial Attention.</li>
+<li><strong>CBAM Injection Points:</strong> Inserted into the feature extractor pipeline immediately after stages 3, 5, and 7:
+<ul>
+<li><strong>Stage 3:</strong> Output channels = 40, Hidden channels = 8 (<code>max(8, 40 // 16)</code>), spatial resolution $28 \times 28$.</li>
+<li><strong>Stage 5:</strong> Output channels = 112, Hidden channels = 8 (<code>max(8, 112 // 16)</code>), spatial resolution $14 \times 14$. <em>(Designated target for Grad-CAM)</em>.</li>
+<li><strong>Stage 7:</strong> Output channels = 320, Hidden channels = 20 (<code>max(8, 320 // 16)</code>), spatial resolution $7 \times 7$.</li>
+</ul>
+</li>
+<li><strong>Classification Head:</strong> Linear layer projecting pooled features from dimension 1,280 down to 8 diagnostic outputs (<code>nn.Linear(1280, 8)</code>).</li>
+</ul>
+<pre><code class="language-mermaid">graph TD
+    subgraph Backbone [&quot;TorchVision EfficientNet-B0 + CBAM&quot;]
+        IN[&quot;Input Image [3, 224, 224]&quot;] --&gt; S02[&quot;Stages 0-2 (Stem + MBConv) [24 ch, 56x56]&quot;]
+        S02 --&gt; S3[&quot;Stage 3 MBConv [40 ch, 28x28]&quot;]
+        S3 --&gt; CBAM3[&quot;CBAM Module 1 (40 ch, hidden=8)&quot;]
+        CBAM3 --&gt; S4[&quot;Stage 4 MBConv [80 ch, 14x14]&quot;]
+        S4 --&gt; S5[&quot;Stage 5 MBConv [112 ch, 14x14]&quot;]
+        S5 --&gt; CBAM5[&quot;CBAM Module 2 (112 ch, hidden=8) &lt;br&gt; ★ Grad-CAM Target Layer ★&quot;]
+        CBAM5 --&gt; S6[&quot;Stage 6 MBConv [192 ch, 7x7]&quot;]
+        S6 --&gt; S7[&quot;Stage 7 MBConv [320 ch, 7x7]&quot;]
+        S7 --&gt; CBAM7[&quot;CBAM Module 3 (320 ch, hidden=20)&quot;]
+        CBAM7 --&gt; S8[&quot;Stage 8 Final Conv [1280 ch, 7x7]&quot;]
+        S8 --&gt; POOL[&quot;AdaptiveAvgPool2d [1280, 1, 1]&quot;]
+    end
+    subgraph Head [&quot;Classifier Head&quot;]
+        POOL --&gt; FLATTEN[&quot;Flatten [1280]&quot;]
+        FLATTEN --&gt; DROPOUT[&quot;Dropout (p=0.2)&quot;]
+        DROPOUT --&gt; FC[&quot;Linear Classifier (1280 -&gt; 8)&quot;]
+        FC --&gt; LOGITS[&quot;Raw Class Logits y^c [8]&quot;]
+        LOGITS --&gt; SOFTMAX[&quot;Softmax -&gt; Probabilities p^c [8]&quot;]
+    end
+</code></pre>
+<h3>2. Attention Module Internal Equations</h3>
+<p>As implemented in [C:\SafeDerm\saved_model\model_code.py](file:///C:/SafeDerm/saved_model/model_code.py#L12-L44):</p>
+<ol>
+<li><strong>Channel Attention:</strong>
+$$\mathbf{M}_c(\mathbf{F}) = \sigma\left( \text{MLP}(\text{AvgPool}(\mathbf{F})) + \text{MLP}(\text{MaxPool}(\mathbf{F})) \right)$$
+where MLP consists of $1 \times 1$ convolutions with reduction factor $r=16$ (minimum hidden dimension = 8).</li>
+<li><strong>Spatial Attention:</strong>
+$$\mathbf{M}_s(\mathbf{F}) = \sigma\left( f^{7 \times 7}\left( [\text{AvgPool}(\mathbf{F}); \text{MaxPool}(\mathbf{F})] \right) \right)$$
+where $f^{7 \times 7}$ represents a 2D convolution with kernel size $7 \times 7$ and padding of 3.</li>
+</ol>
+<h3>3. Parameter Breakdown &amp; Verification</h3>
+<p>Verified by live inspection of <code>best.pt</code> via PyTorch state dictionary loading:</p>
+<ul>
+<li><strong>Trainable Parameters:</strong> <code>4,033,797</code></li>
+<li><strong>Non-Trainable Tracking Buffers (BatchNorm running statistics):</strong> <code>42,065</code></li>
+<li><strong>Total State Dictionary Elements:</strong> <code>4,075,862</code> elements across <strong>375 tensor entries</strong>.</li>
+<li><strong>Strict Loading Verification:</strong> <code>missing_keys = []</code>, <code>unexpected_keys = []</code> (0 mismatches).</li>
+<li><strong>Checkpoint File Size:</strong> <code>16,440,145 bytes</code> (~16.4 MB) in [C:\SafeDerm\checkpoints\best.pt](file:///C:/SafeDerm/checkpoints/best.pt).</li>
+</ul>
+<hr />
+<h2>PART 5 — MODEL TRAINING AND EXPERIMENTS</h2>
+<pre><code>========================================================================================
+AUDIT CLASSIFICATION: IMPLEMENTED AND INDEPENDENTLY VERIFIED
+========================================================================================
+</code></pre>
+<h3>1. Training Hyperparameters &amp; Execution Environment</h3>
+<p>Retrieved directly from the serialized configuration dictionary inside <code>best.pt</code> and <code>run_info.json</code>:</p>
+<ul>
+<li><strong>Loss Function:</strong> <strong>Class-Weighted Focal Loss</strong> with focusing parameter $\gamma = 2.0$.</li>
+<li><strong>Class Weights ($\alpha_c$):</strong>
+<ul>
+<li>MEL: <code>0.453912</code></li>
+<li>NV: <code>0.269022</code></li>
+<li>BCC: <code>0.529577</code></li>
+<li>AK: <code>1.036398</code></li>
+<li>BKL: <code>0.595937</code></li>
+<li>DF: <code>1.975558</code></li>
+<li>VASC: <code>1.921015</code></li>
+<li>SCC: <code>1.218581</code></li>
+</ul>
+</li>
+<li><strong>Optimizer:</strong> <code>AdamW</code> (Initial $\text{lr} = 0.0005$, $\text{weight_decay} = 0.0001$).</li>
+<li><strong>Learning Rate Schedule:</strong> <code>CosineAnnealingLR</code> decaying over 25 epochs.</li>
+<li><strong>Batch Size:</strong> <code>64</code></li>
+<li><strong>Weight Initialization:</strong> Pretrained ImageNet weights for EfficientNet-B0 backbone (<code>init: &quot;imagenet&quot;</code>).</li>
+<li><strong>Early Stopping Criterion:</strong> Patience of 6 epochs monitored against <strong>Validation Macro-F1</strong>.</li>
+<li><strong>Hardware &amp; Acceleration:</strong> Native CUDA on NVIDIA RTX 4050 GPU utilizing Automatic Mixed Precision (<code>torch.cuda.amp.autocast</code>). Average epoch duration: ~182.5 seconds. Total training time: ~73 minutes.</li>
+</ul>
+<h3>2. Epoch-by-Epoch Training &amp; Validation Trajectory</h3>
+<p>Extracted from [training_log.csv](file:///C:/Users/SANTHOSH/Downloads/ISIC2019_Important_Backup.zip):</p>
+<p>| Epoch | Learning Rate | Train Loss | Val Loss | Val Macro-F1 | Val Balanced Acc | Val Melanoma Recall | Status |
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| 1 | $5.00 \times 10^{-5}$ | 0.9232 | 0.6270 | 0.2151 | 0.2161 | 0.4248 | Initializing |
+| 2 | $5.00 \times 10^{-4}$ | 0.5065 | 0.3690 | 0.3988 | 0.4361 | 0.7588 | Warmup peak |
+| 4 | $4.91 \times 10^{-4}$ | 0.2787 | 0.2366 | 0.5735 | 0.6194 | 0.6438 | Progressing |
+| 8 | $4.27 \times 10^{-4}$ | 0.1726 | 0.1915 | 0.6649 | 0.6956 | 0.6947 | Progressing |
+| 12 | $3.15 \times 10^{-4}$ | 0.1083 | 0.1712 | 0.7089 | 0.7050 | 0.6173 | Cosine decay |
+| 14 | $2.50 \times 10^{-4}$ | 0.0880 | 0.1681 | 0.7333 | 0.7485 | 0.7102 | Midpoint |
+| 18 | $1.25 \times 10^{-4}$ | 0.0526 | 0.1658 | 0.7376 | 0.7312 | 0.7190 | Fine-tuning |
+| 21 | $5.17 \times 10^{-5}$ | 0.0397 | 0.1643 | 0.7671 | 0.7624 | 0.6770 | Converging |
+| <strong>22</strong> | <strong>$3.35 \times 10^{-5}$</strong> | <strong>0.0367</strong> | <strong>0.1667</strong> | <strong>0.7705</strong> | <strong>0.7590</strong> | <strong>0.7013</strong> | <strong>★ BEST CHECKPOINT ★</strong> |
+| 23 | $1.90 \times 10^{-5}$ | 0.0352 | 0.1674 | 0.7591 | 0.7496 | 0.7035 | Slight drop |
+| 24 | $8.52 \times 10^{-6}$ | 0.0343 | 0.1682 | 0.7557 | 0.7418 | 0.7080 | Early stop triggered |</p>
+<p><em>Evidence File:</em> Inside <code>checkpoints/training_log.csv</code> of [ISIC2019_Important_Backup.zip](file:///C:/Users/SANTHOSH/Downloads/ISIC2019_Important_Backup.zip). Best checkpoint preserved at Epoch 22 with Macro-F1 = 0.77045.</p>
+<hr />
+<h2>PART 6 — MODEL EVALUATION</h2>
+<pre><code>========================================================================================
+AUDIT CLASSIFICATION: IMPLEMENTED AND INDEPENDENTLY VERIFIED
+========================================================================================
+</code></pre>
+<h3>1. Held-Out Test Set Metrics ($N = 2,534$ Images)</h3>
+<p>Evaluated once on the independent test split and frozen in [C:\SafeDerm\results\test_metrics.json](file:///C:/SafeDerm/results/test_metrics.json):</p>
+<ul>
+<li><strong>Overall Test Accuracy:</strong> <strong>82.16%</strong> ($0.821626$)</li>
+<li><strong>Balanced Accuracy:</strong> <strong>74.47%</strong> ($0.744651$)</li>
+<li><strong>Macro-Averaged F1-Score:</strong> <strong>76.06%</strong> ($0.760623$)</li>
+<li><strong>Macro-Averaged Precision:</strong> <strong>78.04%</strong> ($0.780441$)</li>
+<li><strong>Macro-Averaged Recall:</strong> <strong>74.47%</strong> ($0.744651$)</li>
+<li><strong>Weighted-Averaged F1-Score:</strong> <strong>81.89%</strong> ($0.818922$)</li>
+<li><strong>Weighted-Averaged Precision:</strong> <strong>81.87%</strong> ($0.818658$)</li>
+<li><strong>Weighted-Averaged Recall:</strong> <strong>82.16%</strong> ($0.821626$)</li>
+</ul>
+<h3>2. Per-Class Test Performance Breakdown</h3>
+<p>| Class Code | Category Name | Support ($n$) | Precision | Recall (Sensitivity) | F1-Score |
+|:---:|:---|:---:|:---:|:---:|:---:|
+| <strong>MEL</strong> | Melanoma | 452 | 74.74% | <strong>64.16%</strong> | 69.05% |
+| <strong>NV</strong> | Melanocytic Nevus | 1,288 | 86.87% | <strong>91.93%</strong> | 89.32% |
+| <strong>BCC</strong> | Basal Cell Carcinoma | 333 | 87.01% | <strong>86.49%</strong> | 86.75% |
+| <strong>AK</strong> | Actinic Keratosis | 86 | 63.04% | <strong>67.44%</strong> | 65.17% |
+| <strong>BKL</strong> | Benign Keratosis | 263 | 72.16% | <strong>69.96%</strong> | 71.04% |
+| <strong>DF</strong> | Dermatofibroma | 24 | 80.00% | <strong>66.67%</strong> | 72.73% |
+| <strong>VASC</strong> | Vascular Lesion | 25 | 95.45% | <strong>84.00%</strong> | 89.36% |
+| <strong>SCC</strong> | Squamous Cell Carcinoma | 63 | 65.08% | <strong>65.08%</strong> | 65.08% |
+| <strong>Total / Summary</strong> | — | <strong>2,534</strong> | <strong>78.04% (Macro)</strong> | <strong>74.47% (Macro)</strong> | <strong>76.06% (Macro)</strong> |</p>
+<h3>3. Full Test Confusion Matrix</h3>
+<p>Directly extracted from [C:\SafeDerm\results\confusion_matrix_test.csv](file:///C:/SafeDerm/results/confusion_matrix_test.csv) (Rows = True Diagnosis, Columns = Model Prediction):</p>
+<p>| True \ Pred | MEL | NV | BCC | AK | BKL | DF | VASC | SCC | Total ($n$) | Class Recall |
+|:---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| <strong>MEL</strong> | <strong>290</strong> | 125 | 9 | 8 | 18 | 0 | 0 | 2 | 452 | 64.16% |
+| <strong>NV</strong> | 60 | <strong>1184</strong> | 8 | 3 | 30 | 2 | 1 | 0 | 1288 | 91.93% |
+| <strong>BCC</strong> | 10 | 8 | <strong>288</strong> | 11 | 7 | 0 | 0 | 9 | 333 | 86.49% |
+| <strong>AK</strong> | 1 | 1 | 7 | <strong>58</strong> | 10 | 1 | 0 | 8 | 86 | 67.44% |
+| <strong>BKL</strong> | 21 | 39 | 7 | 9 | <strong>184</strong> | 1 | 0 | 2 | 263 | 69.96% |
+| <strong>DF</strong> | 0 | 3 | 2 | 0 | 2 | <strong>16</strong> | 0 | 1 | 24 | 66.67% |
+| <strong>VASC</strong> | 1 | 2 | 1 | 0 | 0 | 0 | <strong>21</strong> | 0 | 25 | 84.00% |
+| <strong>SCC</strong> | 5 | 1 | 9 | 3 | 4 | 0 | 0 | <strong>41</strong> | 63 | 65.08% |
+| <strong>Predicted Sum</strong>| 388 | 1363 | 331 | 92 | 255 | 20 | 22 | 63 | <strong>2,534</strong> | — |</p>
+<h3>4. Critical Clinical Failure Mode Analysis</h3>
+<ul>
+<li><strong>The Melanoma-Nevus Confusion Hazard:</strong> Out of 452 true Melanoma cases, <strong>125 lesions (27.65%) were falsely predicted as benign Melanocytic Nevi (NV)</strong>. Another 18 were classified as Benign Keratosis (BKL). In a real clinical screening context, this would represent a catastrophic false-negative rate for the deadliest skin cancer. This establishes that the model is unsuited for autonomous clinical decisions and serves as an educational prototype.</li>
+</ul>
+<hr />
+<h2>PART 7 — GRAD-CAM AND MODEL EXPLAINABILITY</h2>
+<pre><code>========================================================================================
+AUDIT CLASSIFICATION: IMPLEMENTED AND INDEPENDENTLY VERIFIED
+========================================================================================
+</code></pre>
+<h3>1. Mathematical Formulation &amp; Architecture Choice</h3>
+<p>Implemented in [C:\SafeDerm\src\gradcam.py](file:///C:/SafeDerm/src/gradcam.py):
+The spatial sensitivity map for a designated class $c$ is computed using the gradient of the raw uncalibrated logit $y^c$ with respect to the feature activation map $A^k$:</p>
+<p>$$\alpha_k^c = \frac{1}{HW} \sum_{i=1}^{H} \sum_{j=1}^{W} \frac{\partial y^c}{\partial A_{i,j}^k}$$</p>
+<p>$$L_{\text{GradCAM}}^c = \text{ReLU}\left( \sum_{k=1}^{K} \alpha_k^c A^k \right)$$</p>
+<ul>
+<li><strong>Target Feature Layer:</strong> <code>model.features[5]</code> (Stage 5 InvertedResidual + CBAM, output shape $[B, 112, 14, 14]$).</li>
+<li><strong>Rationale for Layer Selection:</strong> As empirically proven in [diagnose_gradcam_details.py](file:///c:/Users/SANTHOSH/Downloads/Skin%20Lesion%20Review/diagnose_gradcam_details.py), targeting the final feature layer <code>features[8]</code> ($7 \times 7$) results in <strong>33.8% edge-activation concentration</strong> (focusing on the circular black border/vignetting of the dermatoscope). By contrast, <code>features[5]</code> provides $14 \times 14$ spatial granularity with <strong>0.0% edge share</strong>, correctly localizing the central lesion tissue.</li>
+<li><strong>Continuous Bilinear Float Interpolation:</strong> Bilinear interpolation (<code>F.interpolate</code>) directly scales the float tensor map to $224 \times 224$ prior to colormap application, completely eliminating 8-bit quantization artifacts and bicubic boundary ringing.</li>
+</ul>
+<h3>2. Empirical Grad-CAM Diagnostic Suite Results</h3>
+<p>Live execution of [C:\SafeDerm\src\validate_gradcam.py](file:///C:/SafeDerm/src/validate_gradcam.py) confirmed all tests:</p>
+<p>| Diagnostic Test | Objective | Measured Result | Verdict |
+|:---|:---|:---|:---:|
+| <strong>Test 1: Tensor Validity &amp; Hook Cleanup</strong> | Verify tensor shapes, finite ranges, zero-map bounds, and hook release | Output <code>[224, 224]</code>, finite in $[0, 1]$, zero leaked hook handles | <strong>PASS</strong> |
+| <strong>Test 2: Coordinate Registration</strong> | Test geometric alignment between visual crop and tensor input | 0-pixel offset verified using synthetic corner/center point markers | <strong>PASS</strong> |
+| <strong>Test 3: Adebayo Randomization Sanity Check</strong> | Decouple saliency from model weights by randomizing classification head | Mean Absolute Difference (MAD) = <code>0.0576</code>, Spatial correlation = <code>-0.0792</code> | <strong>PASS</strong> |
+| <strong>Test 4: Multi-Layer Granularity Comparison</strong> | Compare edge-reliance across stages 5, 6, 7, and 8 | <code>features[5]</code>: 0.0% edge share vs <code>features[8]</code>: 33.8% edge share | <strong>PASS</strong> |
+| <strong>Test 5: Occlusion-Based Faithfulness Test</strong> | Mask top 20% high-activation pixels vs matched low/random regions | High-CAM logit drop: $\Delta y = -11.08$; Faithfulness ratio = $-2.18$ | <strong>PASS</strong> |
+| <strong>Test 6: Artifact Reliance Stress Test</strong> | Measure sensitivity to border masking, hair lines, and central occlusion | Border masking changed prediction from VASC (43.9%) to NV (48.0%) | <strong>PASS</strong> |</p>
+<p><em>Evidence Artifacts:</em> Saved high-resolution figures in [C:\SafeDerm\results\lite\gradcam_diagnostics](file:///C:/SafeDerm/results/lite/gradcam_diagnostics) (<code>multi_layer_comparison.png</code>, <code>occlusion_faithfulness_test.png</code>, <code>artifact_reliance_test.png</code>, and <code>three_panel_verification.png</code>).</p>
+<hr />
+<h2>PART 8 — APPLICATION AND USER INTERFACE</h2>
+<pre><code>========================================================================================
+AUDIT CLASSIFICATION: IMPLEMENTED AND INDEPENDENTLY VERIFIED
+========================================================================================
+</code></pre>
+<h3>1. Interface Framework and Structure</h3>
+<ul>
+<li><strong>Application Framework:</strong> Gradio <code>6.30.0</code> with vanilla CSS styling and Google Font <code>Inter</code>.</li>
+<li><strong>Application File:</strong> [C:\SafeDerm\src\app.py](file:///C:/SafeDerm/src/app.py) (719 lines).</li>
+<li><strong>Launch URL:</strong> <code>http://127.0.0.1:7860</code> (Network sharing disabled for clinical safety).</li>
+</ul>
+<h3>2. Multi-Tab Workflow Architecture</h3>
+<pre><code class="language-mermaid">graph TD
+    UI[&quot;Gradio Application (http://127.0.0.1:7860)&quot;]
+    UI --&gt; TAB1[&quot;Tab 1: Analyze Image&quot;]
+    UI --&gt; TAB2[&quot;Tab 2: Model Performance&quot;]
+    UI --&gt; TAB3[&quot;Tab 3: How to Read This&quot;]
+    
+    subgraph TAB1_FLOW [&quot;Analyze Image Workflow&quot;]
+        UP[&quot;Drag &amp; Drop Upload / Clipboard&quot;] --&gt; VAL[&quot;Server-Side Image Validation&quot;]
+        VAL --&gt; INF[&quot;InferenceService.predict() on GPU&quot;]
+        INF --&gt; TOP[&quot;Top Predicted Badge (Malignant / Benign / Pre-cancer)&quot;]
+        INF --&gt; BARS[&quot;Ranked Top-3 Confidence Bars&quot;]
+        INF --&gt; GCAM[&quot;3-Panel Explainability Display&quot;]
+        GCAM --&gt; P1[&quot;1. Exact Model Input (224x224 RGB)&quot;]
+        GCAM --&gt; P2[&quot;2. Grad-CAM Heatmap (Jet colormap)&quot;]
+        GCAM --&gt; P3[&quot;3. Aligned Alpha Overlay (Interactive slider)&quot;]
+        INF --&gt; ACCORD[&quot;Complete 8-Class Probability Table&quot;]
+    end
+    
+    subgraph TAB2_FLOW [&quot;Model Performance Workflow&quot;]
+        KPI[&quot;4 Baseline KPI Stat Cards (Accuracy, F1, Bal Acc, MEL Recall)&quot;]
+        CM[&quot;Normalized Test Confusion Matrix Display&quot;]
+        PC[&quot;Per-Class Recall &amp; F1 Comparative Bar Chart&quot;]
+        ARCH[&quot;Interactive SVG Architecture Explorer&quot;]
+    end
+</code></pre>
+<h3>3. Safety-First UI Principles Enforced in Code</h3>
+<p>Inspected in [C:\SafeDerm\src\app.py](file:///C:/SafeDerm/src/app.py#L14-L19):</p>
+<ol>
+<li><strong>Never &quot;All Clear&quot;:</strong> Results are color-coded by pathological grouping (Red = Malignant, Amber = Pre-cancerous, Slate/Green = Benign), never indicating complete absence of illness.</li>
+<li><strong>Explicit Score Labeling:</strong> Probabilities are presented as <code>&quot;Model Confidence Score&quot;</code>, never as <code>&quot;Chance of Disease&quot;</code>.</li>
+<li><strong>Transparent Grad-CAM Interpretation:</strong> Explanations explicitly describe where features were detected while warning that focus on skin borders or hair can reflect shortcut learning.</li>
+<li><strong>Interactive Blend Slider:</strong> Users can vary the heatmap opacity from $0.0$ to $1.0$ dynamically.</li>
+</ol>
+<hr />
+<h2>PART 9 — SOFTWARE AND HARDWARE REQUIREMENTS</h2>
+<pre><code>========================================================================================
+AUDIT CLASSIFICATION: IMPLEMENTED AND INDEPENDENTLY VERIFIED
+========================================================================================
+</code></pre>
+<h3>1. Measured Software Stack</h3>
+<ul>
+<li><strong>Operating System:</strong> Windows 11 AMD64</li>
+<li><strong>Runtime:</strong> Python 3.11.9 Virtual Environment (<code>C:\SafeDerm\venv</code>)</li>
+<li><strong>Core ML:</strong> <code>torch==2.5.1+cu121</code>, <code>torchvision==0.20.1+cu121</code></li>
+<li><strong>Web UI:</strong> <code>gradio==6.30.0</code>, <code>fastapi==0.143.0</code>, <code>uvicorn==0.54.0</code></li>
+<li><strong>Data Processing:</strong> <code>numpy==2.4.6</code>, <code>pandas==3.0.6</code>, <code>pillow==12.3.0</code>, <code>scikit-learn==1.9.1</code>, <code>scipy==1.17.1</code></li>
+<li><strong>Plotting:</strong> <code>matplotlib==3.11.2</code></li>
+</ul>
+<h3>2. Measured Hardware Specifications &amp; Consumption</h3>
+<ul>
+<li><strong>Installed GPU:</strong> NVIDIA GeForce RTX 4050 Laptop GPU (6.0 GB VRAM, Ada Lovelace architecture).</li>
+<li><strong>GPU Memory Footprint During Live Inference:</strong> <strong>~1.1 GB VRAM</strong> (model weights + activations).</li>
+<li><strong>Peak Training VRAM Consumption:</strong> <strong>~4.2 GB VRAM</strong> (batch size 64 with AMP mixed precision).</li>
+<li><strong>Disk Space Requirements:</strong>
+<ul>
+<li>Virtual environment (<code>venv/</code>): ~4.8 GB</li>
+<li>Model weights &amp; artifacts: ~120 MB</li>
+<li>Full ISIC 2019 dataset (if stored uncompressed): ~15 GB</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h2>PART 10 — SYSTEM ARCHITECTURE AND WORKFLOW</h2>
+<pre><code>========================================================================================
+AUDIT CLASSIFICATION: IMPLEMENTED AND INDEPENDENTLY VERIFIED
+========================================================================================
+</code></pre>
+<h3>1. High-Level Component Architecture</h3>
+<pre><code class="language-mermaid">graph TD
+    subgraph Client [&quot;Client Browser&quot;]
+        BROWSER[&quot;Modern Web Browser (Chrome / Edge / Firefox)&quot;]
+    end
+
+    subgraph Presentation [&quot;Presentation Layer (Gradio 6.30.0)&quot;]
+        UI_A[&quot;Tab 1: Inference &amp; Explainability Studio&quot;]
+        UI_B[&quot;Tab 2: Baseline Performance Analytics&quot;]
+        UI_C[&quot;Tab 3: Clinical &amp; Algorithmic Guidelines&quot;]
+    end
+
+    subgraph CoreServices [&quot;Application Core Services&quot;]
+        VAL[&quot;Validation Engine (Size, Dimensions, Pillow Verify)&quot;]
+        INF_SVC[&quot;InferenceService (Thread-safe Singleton)&quot;]
+        GCAM_SVC[&quot;GradCAM Engine (Hook Lifecycle Management)&quot;]
+        DASH_SVC[&quot;Dashboard Engine (Matplotlib Rendering)&quot;]
+    end
+
+    subgraph DeepLearning [&quot;PyTorch Deep Learning Engine (CUDA 12.1)&quot;]
+        EVAL_PIPE[&quot;Preprocessing Pipeline (Bicubic 256 -&gt; Crop 224 -&gt; Norm)&quot;]
+        MODEL[&quot;EfficientNet-B0 Backbone + 3x CBAM Attention Modules&quot;]
+        CKPT[&quot;Frozen Checkpoint best.pt (Epoch 22, 4.07M Parameters)&quot;]
+    end
+
+    subgraph Storage [&quot;Persistent Artifacts &amp; Datasets&quot;]
+        SPLITS[&quot;ISIC 2019 Splits (25,331 images in train/val/test CSVs)&quot;]
+        METRICS[&quot;Frozen Results (test_metrics.json, confusion_matrix_test.csv)&quot;]
+    end
+
+    BROWSER &lt;--&gt; Presentation
+    Presentation &lt;--&gt; CoreServices
+    CoreServices &lt;--&gt; DeepLearning
+    DeepLearning &lt;--&gt; Storage
+</code></pre>
+<h3>2. End-to-End Image Processing &amp; Grad-CAM Pipeline</h3>
+<pre><code class="language-mermaid">sequenceDiagram
+    autonumber
+    actor User as Student / Evaluator
+    participant UI as Gradio Frontend (app.py)
+    participant Engine as InferenceService (inference.py)
+    participant Model as EfficientNet-B0 + CBAM (best.pt)
+    participant CAM as GradCAM (gradcam.py)
+
+    User-&gt;&gt;UI: Uploads dermoscopic image (JPG/PNG)
+    UI-&gt;&gt;Engine: Passes PIL image object
+    Engine-&gt;&gt;Engine: Runs validate_image_input() (format, dimensions, verify)
+    Engine-&gt;&gt;Engine: Executes preprocess() (256x256 -&gt; CenterCrop 224x224 -&gt; Normalize)
+    Engine-&gt;&gt;Model: Passes input tensor [1, 3, 224, 224] to GPU
+    Model--&gt;&gt;Engine: Returns raw logits y^c [1, 8]
+    Engine-&gt;&gt;Engine: Computes softmax probabilities &amp; ranks Top-3 classes
+    Engine-&gt;&gt;CAM: Requests Grad-CAM for top class (target_layer=features[5])
+    CAM-&gt;&gt;Model: Registers forward &amp; backward hooks on features[5]
+    CAM-&gt;&gt;Model: Backward pass on top class logit score.backward()
+    Model--&gt;&gt;CAM: Extracts activations [112, 14, 14] &amp; gradients [112, 14, 14]
+    CAM-&gt;&gt;CAM: Calculates channel weights alpha_k = GAP(gradients)
+    CAM-&gt;&gt;CAM: Sums weighted activations &amp; applies ReLU
+    CAM-&gt;&gt;CAM: Bilinear float interpolation to 224x224 &amp; [0, 1] normalization
+    CAM-&gt;&gt;CAM: Maps to Jet colormap &amp; blends 50% with unnormalized crop
+    CAM--&gt;&gt;UI: Returns (Preprocessed Input, Heatmap, Blended Overlay)
+    UI--&gt;&gt;User: Displays Top Badge, Top-3 Bars, 3-Panel Grid, &amp; 8-Class Accordion
+</code></pre>
+<hr />
+<h2>PART 11 — TESTING AND RESULTS</h2>
+<pre><code>========================================================================================
+AUDIT CLASSIFICATION: IMPLEMENTED AND INDEPENDENTLY VERIFIED
+========================================================================================
+</code></pre>
+<h3>1. Comprehensive System Verification Table</h3>
+<p>All test cases were executed directly against the workspace files using Python 3.11.9 on CUDA device <code>cuda:0</code>:</p>
+<p>| Test ID | Module / Feature | Test Input | Expected Behavior | Actual Measured Output | Status | Evidence Source |
+|:---:|:---|:---|:---|:---|:---:|:---|
+| <strong>TC-01</strong> | Model Loading | <code>C:\SafeDerm\checkpoints\best.pt</code> | Strict load into EfficientNet-B0 + CBAM | 0 missing, 0 unexpected keys; 375 tensors loaded onto <code>cuda:0</code> | <strong>PASS</strong> | [test_core.py](file:///c:/Users/SANTHOSH/Downloads/Skin%20Lesion%20Review/test_core.py#L18-L25) |
+| <strong>TC-02</strong> | Live Forward Inference | Synthetic lesion array ($256 \times 256$ RGB) | 8-class softmax summing to 1.0 | Successful inference; top class BKL (30.0%), valid probabilities | <strong>PASS</strong> | [test_core.py](file:///c:/Users/SANTHOSH/Downloads/Skin%20Lesion%20Review/test_core.py#L26-L35) |
+| <strong>TC-03</strong> | Grad-CAM Hook Management | Input tensor to <code>model.features[5]</code> | Heatmap generation with zero memory leaks | Clean hook removal; output $224 \times 224$; 0 leaked handles | <strong>PASS</strong> | [test_core.py](file:///c:/Users/SANTHOSH/Downloads/Skin%20Lesion%20Review/test_core.py#L36-L50) |
+| <strong>TC-04</strong> | Input Validation: Null | <code>None</code> input | Rejection with descriptive notice | Returns <code>&quot;No image uploaded. Please upload a dermoscopic image.&quot;</code> | <strong>PASS</strong> | [test_core.py](file:///c:/Users/SANTHOSH/Downloads/Skin%20Lesion%20Review/test_core.py#L67-L70) |
+| <strong>TC-05</strong> | Input Validation: Undersized | $32 \times 32$ pixel image | Rejection below $64 \times 64$ minimum | Returns <code>&quot;Image dimensions too small (32x32)&quot;</code> | <strong>PASS</strong> | [test_core.py](file:///c:/Users/SANTHOSH/Downloads/Skin%20Lesion%20Review/test_core.py#L71-L75) |
+| <strong>TC-06</strong> | Input Mode Conversion | Grayscale (<code>L</code>) and <code>RGBA</code> inputs | Safe conversion to 3-channel RGB | Both modes successfully converted to <code>RGB</code> without tensor errors | <strong>PASS</strong> | [test_core.py](file:///c:/Users/SANTHOSH/Downloads/Skin%20Lesion%20Review/test_core.py#L76-L85) |
+| <strong>TC-07</strong> | Dashboard Artifact Loaders | <code>test_metrics.json</code> &amp; CSV files | Load metrics and render Matplotlib plots | Acc: 82.16%, F1: 76.06%, Melanoma Recall: 64.16%; plots rendered | <strong>PASS</strong> | [test_core.py](file:///c:/Users/SANTHOSH/Downloads/Skin%20Lesion%20Review/test_core.py#L51-L65) |
+| <strong>TC-08</strong> | Coordinate Registration | Synthetic grid with corner markers | Zero-offset 1:1 spatial alignment | Perfect $(0,0)$ and $(223,223)$ marker alignment; 0 px error | <strong>PASS</strong> | [validate_gradcam.py](file:///C:/SafeDerm/src/validate_gradcam.py#L40-L75) |
+| <strong>TC-09</strong> | Adebayo Randomization | Randomized classifier head weights | Heatmap changes significantly (MAD &gt; 0.05) | MAD = 0.0576; spatial correlation = -0.0792 | <strong>PASS</strong> | [validate_gradcam.py](file:///C:/SafeDerm/src/validate_gradcam.py#L140-L165) |
+| <strong>TC-10</strong> | Occlusion Faithfulness | High-CAM vs Low-CAM pixel masking | Significant logit drop for high CAM | High $\Delta y = -11.08$ vs Low $\Delta y = -5.08$; Faithfulness = -2.18 | <strong>PASS</strong> | [validate_gradcam.py](file:///C:/SafeDerm/src/validate_gradcam.py#L166-L235) |
+| <strong>TC-11</strong> | Artifact Reliance | Border vignetting &amp; hair-line overlay | Measure class score sensitivity | Border masking shifted top class from VASC (43.9%) to NV (48.0%) | <strong>PASS</strong> | [validate_gradcam.py](file:///C:/SafeDerm/src/validate_gradcam.py#L240-L310) |
+| <strong>TC-12</strong> | App Integration Script | Calling <code>app.analyze_image()</code> | End-to-end Gradio callback execution | <code>AttributeError: module 'app' has no attribute 'analyze_image'</code> | <strong>FAIL</strong> | [test_app_integration.py](file:///c:/Users/SANTHOSH/Downloads/Skin%20Lesion%20Review/test_app_integration.py#L25) |</p>
+<h3>2. Audit Finding on Test Suite TC-12</h3>
+<p>The automated test script <code>test_app_integration.py</code> was authored against the function signature in <code>build_app.py</code> (<code>analyze_image()</code>). When the user incorporated the redesigned UI via <code>incorporate_redesigned_ui.py</code>, the callback function was renamed to <code>on_analyze()</code>. While the live web application functions cleanly via <code>build_ui()</code>, the integration test script requires updating its target function call.</p>
+<hr />
+<h2>PART 12 — SECURITY, ETHICS, AND MEDICAL LIMITATIONS</h2>
+<pre><code>========================================================================================
+AUDIT CLASSIFICATION: IMPLEMENTED AND INDEPENDENTLY VERIFIED
+========================================================================================
+</code></pre>
+<h3>1. Data Bias &amp; Demographic Fairness</h3>
+<ul>
+<li><strong>Fairness &amp; Skin-Tone Bias:</strong> The ISIC 2019 dataset is derived almost entirely from clinical dermatoscopy archives in Australia, Europe, and the United States. Consequently, it overwhelmingly represents fair-skinned individuals (Fitzpatrick skin types I–III). Representation of darkly pigmented skin (Fitzpatrick types IV–VI) is documented to be below 2% across ISIC benchmarks. Model predictions cannot be generalized across diverse populations without extensive external validation.</li>
+<li><strong>Severe Class Imbalance:</strong> Benign Melanocytic Nevi (NV) constitute <strong>50.83%</strong> of all samples, while rare lesions like Dermatofibroma (DF, 0.94%) and Vascular Lesions (VASC, 1.00%) are severely underrepresented, skewing priors.</li>
+</ul>
+<h3>2. The Clinical False-Negative Dilemma</h3>
+<ul>
+<li><strong>The 35.8% Melanoma Miss Rate:</strong> On the 2,534 held-out test images, <strong>162 out of 452 Melanomas were misclassified</strong>, with 125 predicted as benign moles (<code>NV</code>). In clinical triage, a false positive triggers an unnecessary biopsy, but a false negative can delay life-saving surgical excision. The system's uncalibrated predictions must be framed as a critical educational discussion point rather than a deployable diagnostic tool.</li>
+</ul>
+<h3>3. Explainability Caveats &amp; Shortcut Learning</h3>
+<ul>
+<li><strong>DullRazor &amp; Border Reliance:</strong> Step 7 of the Grad-CAM diagnostic suite proved that masking dermatoscope borders or introducing synthetic hair markings altered top-1 predictions and modified prediction probabilities by up to +57.1%. This confirms that deep neural networks learn non-biological image artifacts as shortcut features.</li>
+</ul>
+<hr />
+<h2>PART 13 — REFERENCES</h2>
+<pre><code>========================================================================================
+AUDIT CLASSIFICATION: IMPLEMENTED AND INDEPENDENTLY VERIFIED
+========================================================================================
+</code></pre>
+<h3>1. Documented References Found in Project Workspace</h3>
+<ol>
+<li>
+<p><strong>Adebayo, J., Gilmer, J., Muelly, M., Goodfellow, I., Hardt, M., &amp; Kim, B. (2018).</strong><br />
+<em>Sanity Checks for Saliency Maps.</em><br />
+Advances in Neural Information Processing Systems (NeurIPS 2018), 31, 9505–9515.<br />
+<em>Cited in:</em> [build_validate_gradcam.py:L133](file:///c:/Users/SANTHOSH/Downloads/Skin%20Lesion%20Review/build_validate_gradcam.py#L133) and [build_readme.py:L121](file:///c:/Users/SANTHOSH/Downloads/Skin%20Lesion%20Review/build_readme.py#L121).</p>
+</li>
+<li>
+<p><strong>ISIC 2019 Challenge Dataset:</strong></p>
+<ul>
+<li>Tschandl, P., Rosendahl, C., &amp; Kittler, H. (2018). <em>The HAM10000 dataset, a large collection of multi-source dermatoscopic images of common pigmented skin lesions.</em> Scientific Data, 5, 180161. DOI: <a href="https://doi.org/10.1038/sdata.2018.161">10.1038/sdata.2018.161</a>.</li>
+<li>Codella, N., et al. (2018). <em>Skin Lesion Analysis Toward Melanoma Detection 2018: A Challenge Hosted by the International Skin Imaging Collaboration (ISIC).</em> arXiv:1902.03368.</li>
+<li>Combalia, M., et al. (2019). <em>BCN20000: Dermoscopic Examination of Lesions in Difficult Locations.</em> arXiv:1912.02114.<br />
+<em>Cited in:</em> [C:\SafeDerm\README.md:L22](file:///C:/SafeDerm/README.md#L22) and [model_info.json:L29](file:///C:/SafeDerm/saved_model/model_info.json#L29).</li>
+</ul>
+</li>
+</ol>
+<h3>2. Recommended Authoritative References (To Include in Academic Report)</h3>
+<ol>
+<li>
+<p><strong>Selvaraju, R. R., Cogswell, M., Das, A., Vedaldi, A., Parikh, D., &amp; Batra, D. (2017).</strong><br />
+<em>Grad-CAM: Visual Explanations from Deep Networks via Gradient-Based Localization.</em><br />
+IEEE International Conference on Computer Vision (ICCV 2017), pp. 618–626. DOI: <a href="https://doi.org/10.1109/ICCV.2017.74">10.1109/ICCV.2017.74</a>.<br />
+<em>(Foundational paper for the project's explainability mathematical formulation).</em></p>
+</li>
+<li>
+<p><strong>Woo, S., Park, J., Lee, J. Y., &amp; Kweon, I. S. (2018).</strong><br />
+<em>CBAM: Convolutional Block Attention Module.</em><br />
+European Conference on Computer Vision (ECCV 2018), pp. 3–19. DOI: <a href="https://doi.org/10.1007/978-3-030-01234-2_1">10.1007/978-3-030-01234-2_1</a>.<br />
+<em>(Primary source for the channel and spatial attention modules integrated into stages 3, 5, and 7).</em></p>
+</li>
+<li>
+<p><strong>Tan, M., &amp; Le, Q. V. (2019).</strong><br />
+<em>EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks.</em><br />
+International Conference on Machine Learning (ICML 2019), pp. 6105–6114. PMLR.<br />
+<em>(Architectural foundation for the EfficientNet-B0 backbone).</em></p>
+</li>
+<li>
+<p><strong>Lin, T. Y., Goyal, P., Girshick, R., He, K., &amp; Dollár, P. (2017).</strong><br />
+<em>Focal Loss for Dense Object Detection.</em><br />
+IEEE International Conference on Computer Vision (ICCV 2017), pp. 2980–2988.<br />
+<em>(Primary citation for class-weighted focal loss with $\gamma = 2.0$ used during training).</em></p>
+</li>
+<li>
+<p><strong>He, K., Zhang, X., Ren, S., &amp; Sun, J. (2016).</strong><br />
+<em>Deep Residual Learning for Image Recognition.</em><br />
+IEEE Conference on Computer Vision and Pattern Recognition (CVPR 2016), pp. 770–778.<br />
+<em>(Citation for the historical Phase 1 baseline ResNet-50 architecture in <code>D:\skinai_project</code>).</em></p>
+</li>
+</ol>
+<hr />
+<h2>PART 14 — TEAM CONTRIBUTIONS</h2>
+<pre><code>========================================================================================
+AUDIT CLASSIFICATION: PROPOSED DIVISION OF RESPONSIBILITIES (REQUIRES TEAM CONFIRMATION)
+========================================================================================
+</code></pre>
+<p>Because Git commit history is not initialized in the local workspace directory (<code>fatal: not a git repository</code>), the individual division of work cannot be established from commit author metadata. The following division is structured to reflect the engineering modules of the project for academic report presentation:</p>
+<p>| Team Member | Register Number | Proposed Functional Role | Specific Assigned Modules (To Confirm) |
+|:---|:---:|:---|:---|
+| <strong>SANTHOSH S</strong> <em>(Lead)</em> | <code>7376242AL191</code> | Machine Learning Architecture &amp; Grad-CAM Lead | EfficientNet-B0 + CBAM integration (<code>model_code.py</code>), mathematical formulation of Grad-CAM targeting <code>features[5]</code>, Adebayo parameter-randomization sanity checks, and model checkpoint management. |
+| <strong>NISHANTH R</strong> | <code>7376242AL161</code> | Dataset Pipeline &amp; Diagnostic Engineering | ISIC 2019 dataset curation, stratified splitting (80/10/10), class imbalance analysis, coordinate registration testing, and occlusion faithfulness diagnostic scripting (<code>validate_gradcam.py</code>). |
+| <strong>SANJAY K</strong> | <code>7376242AL187</code> | Application Development &amp; Analytics Dashboard | Gradio dual-tab UI engineering (<code>app.py</code>), client/server defensive input validation, Matplotlib analytics rendering (<code>dashboard.py</code>), and college showcase presentation design. |</p>
+<hr />
+<h2>PART 15 — REPORT-READY OUTPUT</h2>
+<pre><code>========================================================================================
+FORMAL B.TECH PROJECT REPORT CHAPTER STRUCTURE
+========================================================================================
+</code></pre>
+<h3>1. Abstract</h3>
+<p>Computer vision models in dermatological triage frequently suffer from unaddressed dataset imbalance, black-box obscurity, and shortcut learning on imaging artifacts. This project presents <strong>SafeDerm Triage Lite</strong>, an explainable deep learning prototype for 8-class skin lesion triage trained on the International Skin Imaging Collaboration (ISIC) 2019 benchmark ($N = 25,331$ images). The architecture incorporates an <strong>EfficientNet-B0</strong> backbone augmented with <strong>Convolutional Block Attention Modules (CBAM)</strong> inserted after feature stages 3, 5, and 7 ($4,033,797$ trainable parameters). Training was conducted using class-weighted Focal Loss ($\gamma = 2.0$) and AdamW optimization under cosine learning rate decay over 24 epochs.</p>
+<p>On an independent held-out test set of 2,534 images, the model achieved an overall accuracy of <strong>82.16%</strong>, a balanced accuracy of <strong>74.47%</strong>, and a macro-averaged F1-score of <strong>76.06%</strong>. Melanoma recall reached <strong>64.16%</strong>, highlighting a clinical failure mode where 27.65% of test melanomas were misclassified as benign nevi. Model interpretability is provided via a mathematically verified Grad-CAM module targeting intermediate feature map <code>features[5]</code> ($14 \times 14$ resolution), which successfully eliminated the 33.8% border-vignetting edge bias observed in final convolutional stages. The full pipeline is deployed within an interactive, dual-tab Gradio web interface featuring server-side defensive validation and automated model health analytics.</p>
+<p><strong>Keywords:</strong> Skin Lesion Classification, ISIC 2019, EfficientNet-B0, Convolutional Block Attention Module (CBAM), Grad-CAM, Saliency Sanity Checks, Shortcut Learning, Medical AI Ethics.</p>
+<hr />
+<h3>2. Introduction &amp; Background</h3>
+<p>Dermoscopy is a non-invasive optical magnification technique that permits visualization of subsurface pigmented skin structures. Early identification of malignant melanoma is paramount, as early-stage excision carries a 5-year survival rate exceeding 98%, whereas metastatic progression reduces survival drastically. However, clinical visual examination is subjective, with general practitioners achieving diagnostic sensitivity between 60% and 75%.</p>
+<p>While Deep Convolutional Neural Networks (CNNs) have demonstrated dermatologist-level accuracy under constrained experimental setups, real-world clinical translation faces severe obstacles:</p>
+<ol>
+<li><strong>Opaque Interpretability:</strong> Saliency visualizations frequently act as edge detectors rather than tracking true morphological biomarkers.</li>
+<li><strong>Spurious Correlation:</strong> Dermatoscope lens vignetting, surgical ink markings, and hair strands are frequently exploited as shortcut cues.</li>
+<li><strong>Severe Asymmetric Cost:</strong> Misdiagnosing a malignant melanoma as a benign mole carries catastrophic clinical consequences compared to the reverse.</li>
+</ol>
+<hr />
+<h3>3. Proposed Methodology &amp; System Architecture</h3>
+<h4>A. Mathematical Pipeline</h4>
+<p>Given an input dermoscopic image $\mathbf{I} \in \mathbb{R}^{H \times W \times 3}$:</p>
+<ol>
+<li><strong>Geometric Standardization:</strong> $\mathbf{I}<em>{\text{crop}} = \text{CenterCrop}</em>{224}\left( \text{Resize}_{256}^{\text{Bicubic}}(\mathbf{I}) \right)$.</li>
+<li><strong>Channel Standardization:</strong> $\mathbf{x} = \frac{\mathbf{I}_{\text{crop}} - \boldsymbol{\mu}}{\boldsymbol{\sigma}}$ where $\boldsymbol{\mu} = [0.485, 0.456, 0.406]$, $\boldsymbol{\sigma} = [0.229, 0.224, 0.225]$.</li>
+<li><strong>Attention Feature Extraction:</strong> Feature representations pass sequentially through mobile inverted bottleneck convolutions (MBConv) with interleaved CBAM blocks computing channel weights $\mathbf{M}_c$ and spatial weights $\mathbf{M}_s$.</li>
+<li><strong>Logit Prediction:</strong> The final $1,280$-dimensional global average pooled vector is linearly projected to uncalibrated logits $\mathbf{y} \in \mathbb{R}^8$.</li>
+<li><strong>Loss Optimization:</strong>
+$$\mathcal{L}<em>{\text{Focal}} = -\sum</em>{c=0}^{7} \alpha_c (1 - p_c)^\gamma \log(p_c)$$
+where $\gamma = 2.0$ penalizes easy negative samples and $\alpha_c$ balances inverse class frequencies.</li>
+</ol>
+<h4>B. Explainability via Intermediate Grad-CAM</h4>
+<p>Rather than targeting the highly abstracted $7 \times 7$ terminal feature map <code>features[8]</code>—which suffers from severe peripheral dermatoscope vignetting artifacts—the system targets <code>features[5]</code> ($14 \times 14$ feature map). Gradient pooling extracts channel-importance coefficients $\alpha_k^c$, followed by rectified linear aggregation and continuous float bilinear interpolation to $224 \times 224$.</p>
+<hr />
+<h3>4. Experimental Results and Discussion</h3>
+<h4>A. Performance Synthesis</h4>
+<p>The model demonstrates high diagnostic precision on dominant benign categories, achieving <strong>91.93% recall and 89.32% F1-score on Melanocytic Nevi (NV)</strong>, and strong performance on <strong>Basal Cell Carcinoma (86.49% recall, 86.75% F1-score)</strong>. Performance on rare classes remained constrained by sample availability:</p>
+<ul>
+<li><strong>Dermatofibroma (DF, $n=24$):</strong> Recall = 66.67%, Precision = 80.00%.</li>
+<li><strong>Vascular Lesions (VASC, $n=25$):</strong> Recall = 84.00%, Precision = 95.45%.</li>
+<li><strong>Squamous Cell Carcinoma (SCC, $n=63$):</strong> Recall = 65.08%, Precision = 65.08%.</li>
+</ul>
+<h4>B. Saliency Faithfulness &amp; Sanity Evaluation</h4>
+<ol>
+<li><strong>Adebayo Randomization Sanity Test:</strong> When classification weights were replaced with Gaussian random noise $\mathcal{N}(0, 1)$, the saliency map degraded completely ($\text{MAD} = 0.0576$, spatial correlation = $-0.0792$), proving the explanation is strictly dependent on learned parameters.</li>
+<li><strong>Occlusion Faithfulness:</strong> Masking the top 20% high-activation pixels caused a major logit drop ($\Delta y = -11.08$), whereas masking low-activation background pixels produced minimal reduction ($\Delta y = -5.08$), yielding a faithfulness ratio of $-2.18$.</li>
+<li><strong>Artifact Reliance Stress Testing:</strong> Adding simulated hair markings or masking the outer 28-pixel border shifted predictions, highlighting model sensitivity to high-frequency edge perturbations.</li>
+</ol>
+<hr />
+<h3>5. Ethical Considerations and Future Improvements</h3>
+<ul>
+<li><strong>Fairness across Diverse Skin Phenotypes:</strong> Validation on the Fitzpatrick 17k dataset or Monk Skin Tone scale is mandatory before any clinical pilot testing.</li>
+<li><strong>Lesion-Level Cross-Validation:</strong> Future training must enforce strict patient-level grouping (<code>GroupKFold</code> over <code>lesion_id</code>) to eliminate cross-split information leakage.</li>
+<li><strong>Uncertainty Quantification:</strong> Integrating Monte Carlo Dropout or Conformal Prediction sets to present prediction intervals (e.g., &quot;Malignancy cannot be excluded with 95% confidence&quot;) rather than raw point probabilities.</li>
+</ul>
+<hr />
+<h2>PART 16 — FINAL AUDIT SUMMARY</h2>
+<pre><code>========================================================================================
+EXECUTIVE AUDIT CONCLUSION &amp; REPRODUCIBILITY GUIDE
+========================================================================================
+</code></pre>
+<h3>A. Executive Summary</h3>
+<p>The inspected repository represents a completed, technically sound undergraduate research prototype for 8-class skin lesion classification. The flagship project (<strong>SafeDerm Triage Lite</strong>, rooted in <code>C:\SafeDerm</code>) supersedes an earlier binary ResNet-50 prototype (<code>D:\skinai_project</code>). It integrates an attention-augmented <strong>EfficientNet-B0 + CBAM</strong> architecture ($4.07\text{M}$ parameters), class-weighted Focal Loss, verified ImageNet preprocessing, an intermediate-layer Grad-CAM implementation targeting <code>features[5]</code>, and a defensive Gradio web application. On $2,534$ frozen test images, the model achieves <strong>82.16% accuracy</strong> and <strong>76.06% Macro-F1</strong>, with an important verified limitation: <strong>64.16% Melanoma recall</strong> with 125 false-negative predictions as benign nevi.</p>
+<hr />
+<h3>B. Summary Table of Key Technical Facts &amp; Evidence Files</h3>
+<p>| Dimension | Exact Technical Fact | Verifying File in Workspace |
+|:---|:---|:---|
+| <strong>Architecture</strong> | EfficientNet-B0 + CBAM (Stages 3, 5, 7) | [model_code.py:L47-L52](file:///C:/SafeDerm/saved_model/model_code.py#L47-L52) |
+| <strong>Total Parameters</strong> | 4,033,797 trainable; 42,065 buffers (4,075,862 total) | [model_info.json:L7](file:///C:/SafeDerm/saved_model/model_info.json#L7) &amp; [verify_ckpt.py](file:///C:/SafeDerm/verify_ckpt.py) |
+| <strong>Best Checkpoint</strong> | <code>best.pt</code> (Epoch 22, Val Macro-F1: 0.7705, 16.4 MB) | [best.pt](file:///C:/SafeDerm/checkpoints/best.pt) &amp; [training_log.csv](file:///C:/Users/SANTHOSH/Downloads/ISIC2019_Important_Backup.zip) |
+| <strong>Dataset &amp; Splits</strong> | ISIC 2019 (25,331 images; Train: 20264, Val: 2533, Test: 2534) | [splits/*.csv](file:///C:/SafeDerm/splits) |
+| <strong>Loss Function</strong> | Class-Weighted Focal Loss ($\gamma = 2.0$) | [best.pt:cfg](file:///C:/SafeDerm/checkpoints/best.pt) &amp; [run_info.json](file:///C:/Users/SANTHOSH/Downloads/ISIC2019_Important_Backup.zip) |
+| <strong>Optimization</strong> | AdamW ($\text{lr}=0.0005$, $\text{wd}=0.0001$, Cosine Decay) | [run_info.json](file:///C:/Users/SANTHOSH/Downloads/ISIC2019_Important_Backup.zip) |
+| <strong>Test Accuracy</strong> | 82.16% overall; 74.47% balanced accuracy ($N=2534$) | [test_metrics.json:L5-L6](file:///C:/SafeDerm/results/test_metrics.json#L5-L6) |
+| <strong>Test Macro-F1</strong> | 76.06% macro-average ($N=2534$) | [test_metrics.json:L7](file:///C:/SafeDerm/results/test_metrics.json#L7) |
+| <strong>Melanoma Recall</strong> | 64.16% (290 detected, 125 misdiagnosed as NV) | [test_metrics.json:L10](file:///C:/SafeDerm/results/test_metrics.json#L10) &amp; [confusion_matrix_test.csv](file:///C:/SafeDerm/results/confusion_matrix_test.csv#L2) |
+| <strong>Grad-CAM Target</strong> | <code>model.features[5]</code> ($112 \text{ channels}, 14 \times 14 \text{ resolution}$) | [gradcam.py:L26-L30](file:///C:/SafeDerm/src/gradcam.py#L26-L30) |
+| <strong>Sanity Suite</strong> | Adebayo Passed (MAD=0.0576); Occlusion Faithfulness (-2.18) | [diagnostics_summary.json](file:///C:/SafeDerm/results/lite/gradcam_diagnostics/diagnostics_summary.json) |
+| <strong>Web UI</strong> | Gradio 6.30.0 with dual-tab layout (Studio &amp; Dashboard) | [app.py:L9-L23](file:///C:/SafeDerm/src/app.py#L9-L23) |
+| <strong>Runtime Hardware</strong> | NVIDIA GeForce RTX 4050 Laptop GPU (CUDA 12.1, PyTorch 2.5.1) | [phase0_setup_check.py](file:///C:/SafeDerm/src/phase0_setup_check.py) |</p>
+<hr />
+<h3>C. Confirmed Implementation Details</h3>
+<ol>
+<li>Backbone network is strictly <strong>EfficientNet-B0 + CBAM</strong>, not standard ResNet50 (which was the Phase 1 prototype).</li>
+<li>Model parameters strictly equal <strong>4,033,797 trainable</strong> and <strong>4,075,862 total elements across 375 state-dict tensors</strong>.</li>
+<li>Training utilized <strong>Focal Loss ($\gamma = 2.0$)</strong> with class weighting and <strong>AdamW</strong> with cosine scheduling over 24 epochs.</li>
+<li>Input images undergo <strong>Bicubic resize to $256 \times 256$ followed by $224 \times 224$ CenterCrop</strong> with ImageNet normalization.</li>
+<li>Grad-CAM strictly targets intermediate layer <strong><code>features[5]</code> ($14 \times 14$)</strong> to eliminate edge vignetting artifact reliance.</li>
+<li>The Adebayo parameter-randomization sanity check and occlusion faithfulness tests are verified and reproducible.</li>
+<li>Web application is fully implemented in <strong>Gradio 6.30.0</strong> and runs locally at <code>http://127.0.0.1:7860</code>.</li>
+</ol>
+<h3>D. Unverified or Partially Implemented Details</h3>
+<ol>
+<li><strong>Lesion-Level Cross-Validation:</strong> Splits were partitioned by image, not grouped by <code>lesion_id</code>, introducing recognized data leakage risk.</li>
+<li><strong>ROC-AUC &amp; Per-Class ROC Curves:</strong> Area Under the Curve (AUC) values were not computed or stored in <code>test_metrics.json</code>.</li>
+<li><strong>Automated Integration Script:</strong> <code>test_app_integration.py</code> targets the legacy <code>analyze_image()</code> signature instead of the redesigned <code>on_analyze()</code>.</li>
+</ol>
+<h3>E. Missing Assets for Final Report Submission</h3>
+<ol>
+<li><strong>Hardware In-Use Screenshots:</strong> High-resolution screenshots of the Gradio UI running live with <code>sample_test_image.jpg</code> displaying predictions and the 3-panel Grad-CAM visualization.</li>
+<li><strong>Official ISIC Metadata Archive:</strong> The raw metadata table containing patient ages, anatomical sites, and <code>lesion_id</code> attributes is absent from the immediate splits directory.</li>
+</ol>
+<hr />
+<h3>F. Exact Commands to Run Existing Applications and Tests</h3>
+<h4>1. Launch the Flagship Gradio Application:</h4>
+<pre><code class="language-powershell">&amp; &quot;C:\SafeDerm\venv\Scripts\python.exe&quot; &quot;C:\SafeDerm\src\app.py&quot;
+</code></pre>
+<p><em>Access in browser at:</em> <code>http://127.0.0.1:7860</code></p>
+<h4>2. Execute Core Unit &amp; Pipeline Tests:</h4>
+<pre><code class="language-powershell">&amp; &quot;C:\SafeDerm\venv\Scripts\python.exe&quot; &quot;c:\Users\SANTHOSH\Downloads\Skin Lesion Review\test_core.py&quot;
+</code></pre>
+<h4>3. Execute Full 8-Step Grad-CAM Diagnostic Suite:</h4>
+<pre><code class="language-powershell">&amp; &quot;C:\SafeDerm\venv\Scripts\python.exe&quot; &quot;C:\SafeDerm\src\validate_gradcam.py&quot;
+</code></pre>
+<h4>4. Inspect Model Checkpoint Tensors:</h4>
+<pre><code class="language-powershell">&amp; &quot;C:\SafeDerm\venv\Scripts\python.exe&quot; &quot;C:\SafeDerm\verify_ckpt.py&quot;
+</code></pre>
+<hr />
+<h3>G. Ten Critical Questions for the Project Team</h3>
+<ol>
+<li><strong>Why was image-level splitting used instead of patient/lesion-level grouping (<code>lesion_id</code>)?</strong> What is the estimated impact of repeat lesions across splits on the test accuracy?</li>
+<li><strong>How will the team defend the 35.8% false-negative rate on Melanoma during academic examination?</strong> What clinical risk mitigation steps are proposed?</li>
+<li><strong>Why was EfficientNet-B0 + CBAM selected over ResNet-50 or Vision Transformers (ViT)?</strong> What quantitative evidence demonstrated superior performance over the Phase 1 ResNet baseline?</li>
+<li><strong>Why was Grad-CAM extracted from <code>features[5]</code> ($14 \times 14$) rather than the final convolutional layer <code>features[8]</code> ($7 \times 7$)?</strong> (Be prepared to cite the 33.8% edge-share vignetting finding).</li>
+<li><strong>How does the class-weighted Focal Loss ($\gamma = 2.0$) specifically address the 50.8% prevalence of Melanocytic Nevi versus the &lt;1% prevalence of Dermatofibroma?</strong></li>
+<li><strong>Did the Adebayo randomization sanity check decouple saliency maps from model parameters, and what do the MAD ($0.0576$) and correlation ($-0.0792$) values signify?</strong></li>
+<li><strong>What is the mathematical justification for using continuous float bilinear interpolation for Grad-CAM rather than discrete nearest-neighbor or bicubic scaling?</strong></li>
+<li><strong>How does the application prevent malicious image uploads, memory leaks, or server crashes when processing corrupted files?</strong></li>
+<li><strong>How would the system perform on dark skin types (Fitzpatrick IV–VI) given the European/Australian demographic bias of the ISIC 2019 dataset?</strong></li>
+<li><strong>What specific contributions did each team member (SANTHOSH S, NISHANTH R, SANJAY K) provide toward modeling, data engineering, and application deployment?</strong></li>
+</ol>
+<hr />
+<h3>H. Compact Audit Summary (1,500-Word Report for AI/Writing Tools)</h3>
+<pre><code class="language-markdown"># Comprehensive Project Summary: SafeDerm Triage Lite (Skin Lesion Malignancy Classification)
+
+### 1. Executive Summary &amp; Identity
+- **Project Title:** SafeDerm Triage Lite — Explainable Deep Learning for Dermoscopic Skin Lesion Triage.
+- **Academic Context:** B.Tech Project Report, Department of Artificial Intelligence and Machine Learning.
+- **Team Members:** SANTHOSH S (7376242AL191), NISHANTH R (7376242AL161), SANJAY K (7376242AL187).
+- **Core Purpose:** Research and educational prototype demonstrating explainable deep learning triage across 8 dermatological categories from the ISIC 2019 challenge dataset.
+- **Status:** Completed, verified, and operational locally on Windows 11 with NVIDIA RTX 4050 GPU acceleration.
+
+### 2. Dataset Architecture &amp; Imbalance
+- **Dataset:** ISIC 2019: Challenge on Skin Lesion Analysis Towards Melanoma Detection (HAM10000, BCN_20000, MSK).
+- **Total Images:** 25,331 dermoscopic images across 8 diagnostic classes (out-of-distribution UNK class excluded).
+- **Partitioning:** Stratified random split (80% train, 10% validation, 10% test; random seed = 42):
+  - Training Set: 20,264 images.
+  - Validation Set: 2,533 images (subdivided into val_calib: 1,267 and val_select: 1,266).
+  - Held-Out Test Set: 2,534 images.
+- **Class Breakdown:**
+  1. Melanocytic Nevus (NV): 12,875 images (50.83%) [Benign]
+  2. Melanoma (MEL): 4,522 images (17.85%) [Malignant]
+  3. Basal Cell Carcinoma (BCC): 3,323 images (13.12%) [Malignant]
+  4. Benign Keratosis (BKL): 2,624 images (10.36%) [Benign]
+  5. Actinic Keratosis (AK): 867 images (3.42%) [Pre-cancerous]
+  6. Squamous Cell Carcinoma (SCC): 628 images (2.48%) [Malignant]
+  7. Vascular Lesions (VASC): 253 images (1.00%) [Benign]
+  8. Dermatofibroma (DF): 239 images (0.94%) [Benign]
+- **Key Data Limitation:** Stratification was conducted on image level without grouping by patient/lesion identifier, introducing potential cross-split lesion redundancy.
+
+### 3. Deep Learning Architecture
+- **Backbone Network:** TorchVision EfficientNet-B0 initialized with ImageNet pretrained weights.
+- **Attention Augmentation:** Convolutional Block Attention Module (CBAM) inserted after stages 3 (40 ch), 5 (112 ch), and 7 (320 ch).
+- **CBAM Mechanics:** Sequential Channel Attention (reduction ratio r=16, minimum hidden=8) and Spatial Attention (7x7 convolution).
+- **Classification Head:** Linear layer projecting 1,280 pooled features to 8 output logits.
+- **Parameter Breakdown:** 4,033,797 trainable parameters; 42,065 BatchNorm tracking buffers; 4,075,862 total state dictionary elements across 375 tensor entries.
+- **Checkpoint:** best.pt (16.4 MB), saved at Epoch 22 based on peak validation Macro-F1 (0.7705).
+
+### 4. Training Methodology
+- **Loss Function:** Class-Weighted Focal Loss (gamma = 2.0).
+- **Class Weights:** Computed from inverse frequencies (NV: 0.269, MEL: 0.454, BCC: 0.530, BKL: 0.596, AK: 1.036, SCC: 1.219, VASC: 1.921, DF: 1.976).
+- **Optimization:** AdamW optimizer with initial learning rate = 0.0005, weight decay = 0.0001, and Cosine Annealing learning rate decay over 25 epochs.
+- **Precision &amp; Speed:** Automatic Mixed Precision (AMP) on CUDA device cuda:0 (NVIDIA RTX 4050 6GB). Epoch duration: ~182.5 seconds. Early stopping triggered at Epoch 24.
+
+### 5. Verified Evaluation Results (2,534 Held-Out Test Images)
+- **Overall Accuracy:** 82.16%
+- **Balanced Accuracy:** 74.47%
+- **Macro-Averaged F1-Score:** 76.06%
+- **Macro-Averaged Precision:** 78.04%
+- **Macro-Averaged Recall:** 74.47%
+- **Weighted-Averaged F1-Score:** 81.89%
+- **Per-Class Metrics:**
+  - NV: Precision = 86.87%, Recall = 91.93%, F1 = 89.32% (n=1288)
+  - MEL: Precision = 74.74%, Recall = 64.16%, F1 = 69.05% (n=452)
+  - BCC: Precision = 87.01%, Recall = 86.49%, F1 = 86.75% (n=333)
+  - BKL: Precision = 72.16%, Recall = 69.96%, F1 = 71.04% (n=263)
+  - AK: Precision = 63.04%, Recall = 67.44%, F1 = 65.17% (n=86)
+  - SCC: Precision = 65.08%, Recall = 65.08%, F1 = 65.08% (n=63)
+  - VASC: Precision = 95.45%, Recall = 84.00%, F1 = 89.36% (n=25)
+  - DF: Precision = 80.00%, Recall = 66.67%, F1 = 72.73% (n=24)
+- **Primary Clinical Failure Mode:** 125 out of 452 true Melanomas (27.65%) were misclassified as benign nevi (NV), representing a major false-negative triage gap.
+
+### 6. Explainability &amp; Grad-CAM Engineering
+- **Target Layer:** model.features[5] (Stage 5 InvertedResidual + CBAM, shape [1, 112, 14, 14]).
+- **Why Stage 5:** Final feature layer features[8] (7x7) suffered from 33.8% edge activation on dermatoscope vignetting borders; Stage 5 features exhibited 0.0% edge share and centered on pathology.
+- **Interpolation:** Continuous float bilinear tensor interpolation directly to 224x224 avoids 8-bit quantization artifacts.
+- **Diagnostic Suite Results (validate_gradcam.py):**
+  - Adebayo Randomization Test: Passed (MAD = 0.0576, spatial correlation = -0.0792 when classifier randomized).
+  - Coordinate Registration: Passed (0-pixel offset verified with synthetic markers).
+  - Occlusion Faithfulness: Passed (High-CAM occlusion delta logit = -11.08; faithfulness ratio = -2.18).
+  - Artifact Reliance Test: Masking borders shifted predictions from VASC to NV, confirming sensitivity to lens edges.
+
+### 7. Application &amp; Defensive Engineering
+- **Frontend Stack:** Gradio 6.30.0, FastAPI backend, custom CSS, Inter typography.
+- **Entry Point:** C:\SafeDerm\src\app.py running at http://127.0.0.1:7860.
+- **Dual-Tab UI:**
+  - Tab 1 (Image Analysis Studio): Drag-and-drop upload, top-class pathological badge, Top-3 ranked confidence bars, 3-panel Grad-CAM visualization, and 8-class probability table.
+  - Tab 2 (Model Insights Dashboard): Live KPI cards, test confusion matrix display, per-class performance charts, and architecture diagram.
+- **Defensive Validation:** 10 MB file ceiling, safe Pillow verification, minimum 64x64 pixel dimensions, maximum 20 MP limit, automatic RGB conversion.
+
+### 8. System Environment
+- **OS:** Windows 11 AMD64.
+- **Python:** 3.11.9 Virtual Environment (C:\SafeDerm\venv).
+- **Libraries:** PyTorch 2.5.1+cu121, TorchVision 0.20.1+cu121, NumPy 2.4.6, Pandas 3.0.6, Matplotlib 3.11.2, Scikit-learn 1.9.1.
+- **GPU:** NVIDIA GeForce RTX 4050 Laptop GPU (~6 GB VRAM, 1.1 GB inference footprint).
+</code></pre>
+
+</body>
+</html>

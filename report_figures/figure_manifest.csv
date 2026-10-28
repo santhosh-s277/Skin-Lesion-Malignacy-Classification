@@ -1,0 +1,5 @@
+Filename,Source File,Analytical Purpose,Status
+01_dataset_class_distribution.png,C:\SafeDerm\splits\train.csv,"Bar chart of actual training sample counts (N = 20,264) across all 8 ISIC 2019 classes",VERIFIED
+02_training_validation_loss.png,C:\SafeDerm\checkpoints\training_log.csv,Line plot of training & validation focal loss over 24 epochs; marks best checkpoint at Epoch 22,VERIFIED
+03_test_confusion_matrix.png,C:\SafeDerm\results\confusion_matrix_test.csv,"Annotated 8-class heatmap on 2,534 test images; highlights 125 Melanoma false negatives",VERIFIED
+04_per_class_performance.png,C:\SafeDerm\results\test_metrics.json,"Grouped bar chart showing Precision, Recall, and F1 across all 8 classes with support counts",VERIFIED
