@@ -24,5 +24,5 @@ if __name__ == "__main__":
 
     print(f"[SafeDerm Triage Lite] Starting server on http://{server_name}:{port}...", flush=True)
     demo = build_ui()
-    demo.launch(server_name=server_name, server_port=port, share=False, theme=THEME, css=CUSTOM_CSS)
+    demo.launch(server_name=server_name, server_port=port, share=False)
 

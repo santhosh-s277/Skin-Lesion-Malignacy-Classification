@@ -663,7 +663,7 @@ HEAD_HTML = """
 """
 
 def build_ui() -> gr.Blocks:
-    with gr.Blocks(title="SafeDerm Triage Lite", head=HEAD_HTML) as demo:
+    with gr.Blocks(title="SafeDerm Triage Lite", head=HEAD_HTML, theme=THEME, css=CUSTOM_CSS) as demo:
         gr.HTML(header_html())
         state = gr.State(None)
 
@@ -711,5 +711,5 @@ if __name__ == "__main__":
     port = int(os.environ.get("PORT", 7860))
     server_name = os.environ.get("HOST", "0.0.0.0")
     print(f"[SafeDerm Triage Lite] Launching on http://{server_name}:{port}...", flush=True)
-    build_ui().launch(server_name=server_name, server_port=port, share=False, theme=THEME, css=CUSTOM_CSS)
+    build_ui().launch(server_name=server_name, server_port=port, share=False)
 
