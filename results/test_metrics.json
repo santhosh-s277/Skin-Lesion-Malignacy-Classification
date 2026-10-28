@@ -1,0 +1,72 @@
+{
+  "checkpoint": "best.pt",
+  "epoch": 22,
+  "n_test": 2534,
+  "accuracy": 0.8216258879242304,
+  "balanced_accuracy": 0.7446513921973174,
+  "macro_f1": 0.7606234255034426,
+  "per_class": {
+    "MEL": {
+      "precision": 0.7474226804123711,
+      "recall": 0.6415929203539823,
+      "f1-score": 0.6904761904761905,
+      "support": 452.0
+    },
+    "NV": {
+      "precision": 0.8686720469552458,
+      "recall": 0.9192546583850931,
+      "f1-score": 0.8932478310071671,
+      "support": 1288.0
+    },
+    "BCC": {
+      "precision": 0.8700906344410876,
+      "recall": 0.8648648648648649,
+      "f1-score": 0.8674698795180723,
+      "support": 333.0
+    },
+    "AK": {
+      "precision": 0.6304347826086957,
+      "recall": 0.6744186046511628,
+      "f1-score": 0.651685393258427,
+      "support": 86.0
+    },
+    "BKL": {
+      "precision": 0.7215686274509804,
+      "recall": 0.6996197718631179,
+      "f1-score": 0.7104247104247104,
+      "support": 263.0
+    },
+    "DF": {
+      "precision": 0.8,
+      "recall": 0.6666666666666666,
+      "f1-score": 0.7272727272727273,
+      "support": 24.0
+    },
+    "VASC": {
+      "precision": 0.9545454545454546,
+      "recall": 0.84,
+      "f1-score": 0.8936170212765957,
+      "support": 25.0
+    },
+    "SCC": {
+      "precision": 0.6507936507936508,
+      "recall": 0.6507936507936508,
+      "f1-score": 0.6507936507936508,
+      "support": 63.0
+    },
+    "accuracy": 0.8216258879242304,
+    "macro avg": {
+      "precision": 0.7804409846509357,
+      "recall": 0.7446513921973174,
+      "f1-score": 0.7606234255034426,
+      "support": 2534.0
+    },
+    "weighted avg": {
+      "precision": 0.8186576187771201,
+      "recall": 0.8216258879242304,
+      "f1-score": 0.8189216763853082,
+      "support": 2534.0
+    }
+  },
+  "note": "Research/education prototype, not a medical diagnostic tool."
+}
