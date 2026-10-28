@@ -498,6 +498,9 @@ LIMITS_HTML = """
 # --------------------------------------------------------------------------------------
 # 5. Event handlers
 # --------------------------------------------------------------------------------------
+import uuid
+_ANALYSIS_CACHE = {}
+
 def on_analyze(pil, alpha):
     if pil is None:
         return None, status_html("error", "No image yet. Upload a JPG or PNG up to 10 MB."), EMPTY_RESULT, EMPTY_EXPLAIN
@@ -506,7 +509,18 @@ def on_analyze(pil, alpha):
     except Exception as exc:  # surfaced to the user, never swallowed
         return None, status_html("error", f"Analysis failed: {exc}"), EMPTY_RESULT, EMPTY_EXPLAIN
     top = CLASSES[int(np.argmax(a.scores))][0]
-    return a, status_html("ok", f"Analysis complete. Top class: {top}."), render_result(a), render_explain(a, alpha)
+    token = str(uuid.uuid4())
+    _ANALYSIS_CACHE[token] = a
+    if len(_ANALYSIS_CACHE) > 50:
+        for k in list(_ANALYSIS_CACHE.keys())[:-20]:
+            _ANALYSIS_CACHE.pop(k, None)
+    return token, status_html("ok", f"Analysis complete. Top class: {top}."), render_result(a), render_explain(a, alpha)
+
+
+def on_alpha_change(alpha_val, token):
+    if not token or token not in _ANALYSIS_CACHE:
+        return EMPTY_EXPLAIN
+    return render_explain(_ANALYSIS_CACHE[token], alpha_val)
 
 
 def on_reset():
@@ -700,7 +714,7 @@ def build_ui() -> gr.Blocks:
         analyze.click(on_analyze, [img, alpha], [state, status, result, explain], show_progress="minimal")
         img.upload(on_analyze, [img, alpha], [state, status, result, explain], show_progress="minimal")
         reset.click(on_reset, None, [img, state, status, result, explain])
-        alpha.change(lambda a, s: render_explain(s, a), [alpha, state], explain, show_progress="hidden")
+        alpha.change(on_alpha_change, [alpha, state], explain, show_progress="hidden")
         refresh.click(on_dashboard, None, [summary, confusion, per_class])
         demo.load(on_dashboard, None, [summary, confusion, per_class])
     demo.queue(default_concurrency_limit=2)
