@@ -698,10 +698,12 @@ def build_ui() -> gr.Blocks:
                 gr.HTML(LIMITS_HTML)
 
         analyze.click(on_analyze, [img, alpha], [state, status, result, explain], show_progress="minimal")
+        img.upload(on_analyze, [img, alpha], [state, status, result, explain], show_progress="minimal")
         reset.click(on_reset, None, [img, state, status, result, explain])
         alpha.change(lambda a, s: render_explain(s, a), [alpha, state], explain, show_progress="hidden")
         refresh.click(on_dashboard, None, [summary, confusion, per_class])
         demo.load(on_dashboard, None, [summary, confusion, per_class])
+    demo.queue(default_concurrency_limit=2)
     return demo
 
 
