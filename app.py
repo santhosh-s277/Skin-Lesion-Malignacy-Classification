@@ -10,10 +10,10 @@ for d in [ROOT_DIR, SRC_DIR, SAVED_MODEL_DIR]:
     if d not in sys.path:
         sys.path.insert(0, d)
 
-from app import build_ui, THEME, CUSTOM_CSS
+from src.app import build_ui, THEME, CUSTOM_CSS
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 7860))
+    port = int(os.environ.get("PORT", 10000))
     server_name = os.environ.get("HOST", "0.0.0.0")
     print(f"[SafeDerm Triage Lite] Starting server on http://{server_name}:{port}...", flush=True)
     build_ui().launch(server_name=server_name, server_port=port, share=False, theme=THEME, css=CUSTOM_CSS)

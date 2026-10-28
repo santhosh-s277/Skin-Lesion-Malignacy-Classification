@@ -528,8 +528,6 @@ def on_dashboard():
 # 6. Styling
 # --------------------------------------------------------------------------------------
 CUSTOM_CSS = """
-@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap');
-
 :root{
   --ink:#12232B; --muted:#52646D; --paper:#F3F6F7; --card:#FFFFFF; --line:#D6E0E4;
   --accent:#0B6E75; --accent-ink:#064A4F;
@@ -658,8 +656,14 @@ THEME = gr.themes.Soft(
 # --------------------------------------------------------------------------------------
 # 7. Layout
 # --------------------------------------------------------------------------------------
+HEAD_HTML = """
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap" rel="stylesheet">
+"""
+
 def build_ui() -> gr.Blocks:
-    with gr.Blocks(title="SafeDerm Triage Lite") as demo:
+    with gr.Blocks(title="SafeDerm Triage Lite", head=HEAD_HTML) as demo:
         gr.HTML(header_html())
         state = gr.State(None)
 
