@@ -670,14 +670,18 @@ THEME = gr.themes.Soft(
 # --------------------------------------------------------------------------------------
 # 7. Layout
 # --------------------------------------------------------------------------------------
-HEAD_HTML = """
+HEAD_HTML = f"""
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap" rel="stylesheet">
+<style>
+{CUSTOM_CSS}
+</style>
 """
 
 def build_ui() -> gr.Blocks:
     with gr.Blocks(title="SafeDerm Triage Lite", head=HEAD_HTML, theme=THEME, css=CUSTOM_CSS) as demo:
+        gr.HTML(f"<style>{CUSTOM_CSS}</style>")
         gr.HTML(header_html())
         state = gr.State(None)
 
